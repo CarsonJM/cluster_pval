@@ -1,12 +1,13 @@
 # Use Cases
 
 ## Researcher
+- **Tool:** Requests data in specified
 - **Researcher:** Import pre-processed scRNAseq dataset. Specifies number of clusters they want and clustering method(s).
 - **Tool:** Displays "run test" 
 - **Tool:** Runs clustering with all selected methods. Calculates P values using Wald p-value method and Gao P value method. Presents output of each.
 
 ## Statistician
-- **Statistician:** Import pre-processed scRNAseq dataset. Specifies number of clusters they want and clustering method(s). 
+- **Statistician:** Import pre-processed scRNAseq dataset. Specifies number of clusters they want and clustering method(s).
 - **Tool:** Displays "run test"
 **Tool:** Runs clustering with all selected methods. Calculates P values using Wald p-value method and Gao P value method. Presents output of each.
 - **Statistician:** Is interested in new P value method. Seeks out additional information in our documentation about inner workings.
