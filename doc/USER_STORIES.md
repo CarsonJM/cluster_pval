@@ -1,6 +1,6 @@
 # User Stories
-- User 1: Researcher who has generated a scRNAseq dataset. They want to know which clustering method yields the most signifigant differences between cluster means and wants to know that the differences they are seeing are real (not due to inflated type 1 error). They are fairly technical but may not be well versed in software, probably won't change software tool.
+- User 1: Researcher who has generated a scRNAseq dataset. They want to know which clustering method yields the most signifigant differences between cluster means and want to know that the differences they are seeing are real (not due to inflated type 1 error). They are fairly technical but may not be well versed in software, probably won't modify the software tool. All they desire is a rough visualization of the clusters as well as the associated p-values.
 
-- User 2: Data scientist behind the tool, consultant that consults with researchers using the tool and adds features researchers need on a case by case basis. Highly technical.
+- User 2: Statistician who is not interested in looking at their own data but is interested in 1) why the different methods are generating different p-values and 2) analyzing many datasets using different clustering/p-value methods to look for significant differences that may be occuring. Wants to use the tool and know how the method works but won't go and edit the code.
 
-- User 3: Statistician who is not interested in looking at their own data but is interested in why the different methods are generating different p values. Want to know how the method works but won't go and edit the code.
+- User 2: Data scientist behind the tool, consultant that works with researchers using the tool and adds features researchers need on a case by case basis. Highly technical and capable of creating the tool and modifying the tool as is required.
