@@ -17,5 +17,5 @@ Datascientist that edit the code
 
 DIRECTORY LAYOUT
 
-doc: contains documents (component diagrams, user stories & use cases_
+doc: contains documents (component diagrams, user stories & use cases)
 
