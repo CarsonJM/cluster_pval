@@ -5,7 +5,7 @@ clusterpval website: https://www.lucylgao.com/clusterpval/
 Package described in: https://arxiv.org/abs/2012.02936
 """
 
-def stattest_clusters_approx(X, k1, k2, iso=True, sig=None, SigInv=None, ndraws=2000):
+def stattest_clusters_approx(X, k1, k2, cluster_labels, iso=True, sig=None, SigInv=None, ndraws=2000):
     """
     Monte-Carlo significance test for any clustering method. This function takes matrix X clustered
     into K clusters and tests the null hypothesis of no difference in means between clusters k1 and
@@ -15,6 +15,7 @@ def stattest_clusters_approx(X, k1, k2, iso=True, sig=None, SigInv=None, ndraws=
     :param X: n by p matrix, containing numeric data
     :param k1: integer, selects a cluster to test
     :param k2: integer, selects a cluster to test
+    :param cluster_labels: numpy.ndarray, labels of each point (row) in X
     :param iso: boolean, if True isotropic covariance matrix model, otherwise not
     :param sig: optional scalar specifying sigma,  relevant if iso == True
     :param SigInv: optional matrix specifying Sigma^-1, relevant if iso == False

@@ -10,7 +10,7 @@ import unittest
 from scipy.cluster.hierarchy import dendrogram, linkage
 from matplotlib import pyplot as plt
 
-from stattest_clusters_approx import stattest_clusters_approx
+from src.pval_module.stattest_clusters_approx import stattest_clusters_approx
 
 
 class TestPvalModule(unittest.TestCase):
@@ -32,8 +32,8 @@ class TestPvalModule(unittest.TestCase):
                       [80, 91], ])
         cluster = AgglomerativeClustering(n_clusters=2, affinity='euclidean', linkage='ward')
         cluster.fit_predict(x)
-        plt.scatter(x[:, 0], x[:, 1], c=cluster.labels_, cmap='rainbow')
-        plt.show()
+        #plt.scatter(x[:, 0], x[:, 1], c=cluster.labels_, cmap='rainbow')
+        #plt.show()
         k1 = 1
         k2 = 2
-        stattest_clusters_approx(x, k1, k2)
+        stattest_clusters_approx(x, k1, k2, cluster.labels_)
