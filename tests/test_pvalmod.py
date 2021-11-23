@@ -34,6 +34,25 @@ class TestPvalModule(unittest.TestCase):
         cluster.fit_predict(x)
         #plt.scatter(x[:, 0], x[:, 1], c=cluster.labels_, cmap='rainbow')
         #plt.show()
-        k1 = 1
-        k2 = 2
+        k1 = 0
+        k2 = 1
         stattest_clusters_approx(x, k1, k2, cluster.labels_)
+
+
+    def test_penguin(self):
+        """
+        Test using Penguin data used in R tutorial
+        :return: same results as shown in R tutorial
+        """
+        penguin_data = np.genfromtxt('tests/data_for_tests/penguin_data_subset.txt', delimiter=' ',
+                                     skip_header=1)
+        K = 5
+        #set linkage to average to match R script
+        cluster = AgglomerativeClustering(n_clusters=K, affinity='euclidean', linkage='average')
+        cluster.fit_predict(penguin_data)
+        #flipped these axes to match figure in R
+        #plt.scatter(penguin_data[:, 1], penguin_data[:, 0], c=cluster.labels_, cmap='rainbow')
+        #plt.show()
+        k1 = 0
+        k2 = 1
+        stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_)

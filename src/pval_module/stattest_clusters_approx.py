@@ -5,6 +5,8 @@ clusterpval website: https://www.lucylgao.com/clusterpval/
 Package described in: https://arxiv.org/abs/2012.02936
 """
 
+import numpy as np
+
 def stattest_clusters_approx(X, k1, k2, cluster_labels, iso=True, sig=None, SigInv=None, ndraws=2000):
     """
     Monte-Carlo significance test for any clustering method. This function takes matrix X clustered
@@ -26,4 +28,18 @@ def stattest_clusters_approx(X, k1, k2, cluster_labels, iso=True, sig=None, SigI
         - pval - float, the approximate p value
         - stderr - float, the standard error of the p-value estimate
     """
-    print("sure!")
+
+    #check to make sure X is ndarray
+    rows, cols = X.shape
+    n = rows
+    q = cols
+
+    unique, counts = np.unique(cluster_labels, return_counts=True)
+    K = len(unique)
+    #check to make sure K (number of clusters) is between 2 and n
+    #check to make sure k1 and k2 are between 0 and K-1
+    #maybe check to make sure iso is true or false, or set default to true (as is done here)
+    points_per_cluster = dict(zip(unique, counts))
+    n1 = points_per_cluster[k1]
+    n2 = points_per_cluster[k2]
+    squared_norm_nu = (1/n1) + (1/n2)
