@@ -48,11 +48,14 @@ class TestPvalModule(unittest.TestCase):
                                      skip_header=1)
         K = 5
         #set linkage to average to match R script
-        cluster = AgglomerativeClustering(n_clusters=K, affinity='euclidean', linkage='average')
+        positional_arguments = []
+        keyword_arguments = {'n_clusters':K, 'affinity':'euclidean', 'linkage':'average'}
+        cluster = AgglomerativeClustering(**keyword_arguments)
         cluster.fit_predict(penguin_data)
         #flipped these axes to match figure in R
         #plt.scatter(penguin_data[:, 1], penguin_data[:, 0], c=cluster.labels_, cmap='rainbow')
         #plt.show()
         k1 = 0
         k2 = 1
-        stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_)
+        stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_, AgglomerativeClustering, positional_arguments,
+                                 keyword_arguments)
