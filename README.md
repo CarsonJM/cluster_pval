@@ -1,4 +1,5 @@
 Welcome to the project page of group 10 - scRNAseq Clustering Issues
+[![Build Status](https://app.travis-ci.com/Cluster-Club/Cluster_PVal.svg?branch=master)](https://app.travis-ci.com/Cluster-Club/Cluster_PVal)
 
 S. Jannetty, C. Miller, A. Mounsey, S. Pollack & L. Droog
 
