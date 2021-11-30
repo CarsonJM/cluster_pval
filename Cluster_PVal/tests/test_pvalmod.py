@@ -10,7 +10,8 @@ import unittest
 from scipy.cluster.hierarchy import dendrogram, linkage
 from matplotlib import pyplot as plt
 
-from src.pval_module.stattest_clusters_approx import stattest_clusters_approx
+from pval_module.stattest_clusters_approx import \
+    stattest_clusters_approx
 
 
 class TestPvalModule(unittest.TestCase):
@@ -57,5 +58,9 @@ class TestPvalModule(unittest.TestCase):
         #plt.show()
         k1 = 0
         k2 = 1
-        stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_, AgglomerativeClustering, positional_arguments,
-                                 keyword_arguments)
+        stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
+                                          cluster.labels_, AgglomerativeClustering, positional_arguments,
+                                 keyword_arguments, ndraws=10000)
+        print("stat: {}".format(stat))
+        print("pval: {}".format(pval))
+        print("stderr: {}".format(stderr))

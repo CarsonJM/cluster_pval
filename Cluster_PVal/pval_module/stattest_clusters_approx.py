@@ -30,7 +30,7 @@ def preserve_cl(cl, cl_phi, k1, k2):
 
 def stattest_clusters_approx(X, k1, k2, cluster_labels, cl_fun,
                              positional_arguments, keyword_arguments,
-                             iso=True, sig=None, SigInv=None, ndraws=200):
+                             iso=True, sig=None, SigInv=None, ndraws=2000):
     """
     Monte-Carlo significance test for any clustering method. This function takes matrix X clustered
     into K clusters and tests the null hypothesis of no difference in means between clusters k1 and
@@ -88,7 +88,6 @@ def stattest_clusters_approx(X, k1, k2, cluster_labels, cl_fun,
         if SigInv == None:
             colmeans = np.mean(X, axis=0)
             scaledX = X - colmeans
-            #print(scaledX)
             Sig = np.cov(scaledX, rowvar=False)
             SigInv = np.linalg.inv(Sig)
         else:
@@ -100,14 +99,12 @@ def stattest_clusters_approx(X, k1, k2, cluster_labels, cl_fun,
 
     scale_factor = math.sqrt(scale_factor)
     log_survives = [None] * ndraws
-    phi = np.random.normal(size=ndraws) * scale_factor + stat
+    phi = np.random.normal(size=ndraws)*scale_factor + stat
     k1_constant = prop_k2*diff_means/stat
     k2_constant = (prop_k2 - 1)*diff_means/stat
     orig_k1 = np.transpose(X[cluster_labels == k1,:])
     orig_k2 = np.transpose(X[cluster_labels == k2, :])
     Xphi = X
-
-    num_preserved = 0
 
     for j in range(ndraws):
         if phi[j] < 0:
@@ -116,26 +113,40 @@ def stattest_clusters_approx(X, k1, k2, cluster_labels, cl_fun,
         Xphi = X
         Xphi[cluster_labels == k1, :] = np.transpose(orig_k1[:]) + ((phi[j] - stat) * k1_constant)
         Xphi[cluster_labels == k2, :] = np.transpose(orig_k2[:]) + ((phi[j] - stat) * k2_constant)
-
         #recluster the perturbed data set
         cl_Xphi = cl_fun(*positional_arguments, **keyword_arguments)
         cl_Xphi.fit_predict(Xphi)
 
         if(preserve_cl(cluster_labels, cl_Xphi.labels_, k1, k2)):
-            num_preserved += 1
             first_term = -((phi[j]/scale_factor)**2)/2 + \
                          (q-1)*math.log(phi[j]/scale_factor)
-            #print(first_term)
             middle_term = (q/2 - 1)*math.log(2) - math.log(math.gamma(q/2)) -\
                           math.log(scale_factor)
-            #print(middle_term)
             last_term = scipy.stats.norm.logpdf(phi[j], loc=stat,
                                                 scale=scale_factor)
-            #print(last_term)
             log_survives[j] = first_term - middle_term - last_term
 
     #trim down to only survives
-    print("num preserved = {}".format(num_preserved))
-    print(sum(value is not None for value in log_survives))
-    phi = phi[log_survives != None]
-    print(len(phi[log_survives != None][0]))
+    survives_indexes = [i for i,v in enumerate(log_survives) if v != None]
+    phi = phi[survives_indexes]
+    log_survives = [v for v in log_survives if v != None]
+    survives = len(log_survives)
+
+    #raise runtime error if nothing survives (test by running with 1 until it
+    # hits)
+    if survives == 0:
+        raise RuntimeError("Oops - we didn't generate any samples that "
+                           "preserved the clusters! Try re-running with a "
+                           "larger value of ndraws")
+
+
+    #approximate p values
+    log_survives_shift = log_survives - max(log_survives)
+    props = np.exp(log_survives_shift)/sum(np.exp(log_survives_shift))
+    pval = sum(props[phi >= stat])
+    var_pval = (1-pval)**2*sum(props[phi >= stat]**2) + pval**2*sum(props[phi
+                                                                      <
+                                                                          stat]**2)
+    stderr = math.sqrt(var_pval)
+
+    return stat, pval, stderr
