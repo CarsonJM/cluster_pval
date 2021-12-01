@@ -7,9 +7,8 @@ from sklearn.cluster import AgglomerativeClustering
 import unittest
 import matplotlib.pyplot as plt
 
-from pval_module.stattest_clusters_approx import \
-    stattest_clusters_approx
-from pval_module.wald_test import wald_test
+from pval_module.stattests import stattest_clusters_approx
+from pval_module.stattests import wald_test
 
 class TestPvalModule(unittest.TestCase):
 
