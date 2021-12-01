@@ -16,8 +16,6 @@ import plotly.express as px
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-pvals = pd.read_csv('Cluster_PVal/tests/test_pvals.csv')
-
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
