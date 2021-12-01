@@ -43,7 +43,7 @@ app.layout = html.Div([
             html.A('Select Files')
         ]),
         style={
-            'width': '100%',
+            'width': '99%',
             'height': '60px',
             'lineHeight': '60px',
             'borderWidth': '1px',
@@ -65,7 +65,6 @@ def parse_contents(contents, filename, date):
 
     try:
         if 'csv' in filename:
-            # Assume that the user uploaded a CSV file
             df = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')), dtype={'cluster': str})
             fig = px.scatter(df, x="x", y="y", color="cluster", hover_name="cell")
@@ -77,24 +76,24 @@ def parse_contents(contents, filename, date):
         ])
 
     return html.Div([
-        html.H5(filename),
+        html.Hr(),
 
-        html.H6(datetime.datetime.fromtimestamp(date)),
+        html.Div(children=[
+            'Filename: ', filename
+            ]),
+
+        html.Div(children=[
+            'Date: ', datetime.datetime.fromtimestamp(date)
+            ]),
 
         dash_table.DataTable(
             data=df.to_dict('records'),
-            columns=[{'name': i, 'id': i} for i in df.columns]
+            columns=[{'name': i, 'id': i} for i in df.columns],
+            page_size=10,
+            style_cell={'textAlign': 'left'}
         ),
 
         html.Hr(),
-
-        # For debugging, display the raw contents provided by the web browser
-        html.Div('Raw Content'),
-
-        html.Pre(contents[0:200] + '...', style={
-            'whiteSpace': 'pre-wrap',
-            'wordBreak': 'break-all'
-        }),
 
         dcc.Graph(
         id='example-graph',
