@@ -65,10 +65,10 @@ class TestPvalModule(unittest.TestCase):
         k2 = 1
         wald_test(x, k1, k2, cluster.labels_)
 
-    def test_penguin_gao(self):
+    def test_penguin_gao_10000(self):
         """
         Test using Penguin data used in R tutorial
-        :return: same results as shown in R tutorial
+        :return: same results as when using R stattest_clusters_approx function
         """
         penguin_data = np.genfromtxt(
             'tests/data_for_tests/penguin_data_subset.txt',
@@ -127,3 +127,44 @@ class TestPvalModule(unittest.TestCase):
         stat, pval = wald_test(penguin_data, k1, k2, cluster.labels_)
         assert np.isclose(stat, 10.11433)
         assert np.isclose(pval, 0.006226331)
+
+
+    def test_penguin_gao_200(self):
+        """
+        Test using Penguin data used in R tutorial
+        :return: same results as when using R stattest_clusters_approx function
+        """
+        penguin_data = np.genfromtxt(
+            'tests/data_for_tests/penguin_data_subset.txt',
+            delimiter=' ', skip_header=1)
+        K = 5
+        #set linkage to average to match R script
+        positional_arguments = []
+        keyword_arguments = {'n_clusters':K, 'affinity':'euclidean', 'linkage':'average'}
+        cluster = AgglomerativeClustering(**keyword_arguments)
+        cluster.fit_predict(penguin_data)
+        #flipped these axes to match figure in R
+        #plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
+        # c=cluster.labels_, cmap='rainbow')
+        #print (cluster.labels_)
+        #plt.show()
+        k1 = 0
+        k2 = 1
+        stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
+                                          cluster.labels_, AgglomerativeClustering, positional_arguments,
+                                 keyword_arguments, ndraws=200)
+        passing = True
+        assert np.isclose(stat, 10.11433)
+        try:
+            assert np.isclose(stderr, 0.07, atol=.02)
+        except AssertionError:
+            passing = False
+            print("stderr is {}, meant to be within .001 of "
+                  "0.01084133".format(stderr))
+        try:
+            assert np.isclose(pval, 0.55, atol=.1)
+        except AssertionError:
+            passing = False
+            print("pval is {}, meant to be within .02 of "
+                  "0.6360161".format(pval))
+        assert(passing == True)

@@ -15,96 +15,63 @@ Code written for: https://arxiv.org/abs/2012.02936
 """
 
 import math
-import scipy
+import scipy.stats
 import numpy as np
 import pandas as pd
 
-
-def preserve_cl(cl, cl_phi, k1, k2):
-    """
-    Checks if Ck, Ck' in C(x'(phi)). Returns True if Ck, Ck' in (C(x'(phi))),
-    False otherwise. Checks if clusters in original cluster labelset are the
-    same size as clusters in perturbed data labelset
-    :param cl: list or numpy.ndarray, cluster labels from initial input
-    :param cl_phi: list or numpy.ndarray, cluster labels of perturbed data
-    :param k1: integer, index of cluster involved in test
-    :param k2: integer, intex of cluster involved in test
-    :return: True if Ck, Ck' in (C(x'(phi))), False otherwise
-    """
-    df = pd.DataFrame({'cl':cl, 'cl_phi':cl_phi})
-    tab = pd.crosstab(index=df['cl'], columns=df['cl_phi'])
-    k1_in = (sum(tab.iloc[k1, :] != 0) == 1) and (sum(tab.iloc[:, k1] != 0) == 1)
-    k2_in = (sum(tab.iloc[k2, :] != 0) == 1) and (sum(tab.iloc[:, k2] != 0) == 1)
-    return k1_in and k2_in
+def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
+    pass
+    # check to make sure X is 2D ndarray
+    #check to make sure K (number of clusters) is between 2 and n
+    #check to make sure k1 and k2 are between 0 and K-1
+    #maybe check to make sure iso is true or false, or set default to true (as is done here)
 
 def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
                              positional_arguments, keyword_arguments,
                              iso=True, sig=None, siginv=None, ndraws=2000):
     """
-    Monte-Carlo significance test for any clustering method. This function takes matrix X clustered
-    into K clusters and tests the null hypothesis of no difference in means between clusters k1 and
-    k2. To account for the fact that the clusters were estimated from the data, the p-values are
-    computed conditional on the fact that those clusters were estimated. P-values are approximated
-    via importance sampling.
-    :param x: n by p matrix (np.array), containing numeric data
+    Monte-Carlo significance test for any clustering method. This function
+    takes matrix X clustered into K clusters and tests the null hypothesis of
+    no difference in means between clusters k1 and k2. To account for the
+    fact that the clusters were estimated from the data, the p-values are
+    computed conditional on the fact that those clusters were estimated.
+    P-values are approximated via importance sampling.
+
+    :param x: n by q matrix (np.array), containing numeric data
     :param k1: integer, selects a cluster to test
     :param k2: integer, selects a cluster to test
     :param cluster_labels: numpy.ndarray, labels of each point (row) in X
     :param cl_fun: function used to cluster data in clustering module
     :param positional_arguments: list of positional arguments used by cl_fun
-    :param keyword_arguments: dict of keyword argument key:value pairs used by cl_fun
-    :param iso: boolean, if True isotropic covariance matrix model, otherwise not
+    :param keyword_arguments: dict of keyword argument key:value pairs used by
+    cl_fun
+    :param iso: boolean, if True isotropic covariance matrix model, otherwise
+    not
     :param sig: optional scalar specifying sigma,  relevant if iso == True
-    :param siginvigInv: optional matrix specifying Sigma^-1, relevant if iso == False
-    :param ndraws: integer, selects the number of importance samples, default of 2000
+    :param siginv: optional matrix specifying Sigma^-1, relevant if
+    iso == False
+    :param ndraws: integer, selects the number of importance samples, default
+    of 2000
     :return:
-        - stat - float, the test statistic: Euclidean distance between mean of cluster k1 and mean of
-                 cluster k2
+        - stat - float, the test statistic: Euclidean distance between mean of
+                 cluster k1 and mean of cluster k2
         - pval - float, the approximate p value
         - stderr - float, the standard error of the p-value estimate
     """
-
-    #check to make sure X is 2D ndarray
     rows, cols = x.shape
-    n = rows
     q = cols
-
     unique, counts = np.unique(cluster_labels, return_counts=True)
-    K = len(unique)
-    #check to make sure K (number of clusters) is between 2 and n
-    #check to make sure k1 and k2 are between 0 and K-1
-    #maybe check to make sure iso is true or false, or set default to true (as is done here)
     points_per_cluster = dict(zip(unique, counts))
     n1 = points_per_cluster[k1]
     n2 = points_per_cluster[k2]
-    squared_norm_nu = (1/n1) + (1/n2)
     k1colmeans = np.mean(x[cluster_labels == k1,:], axis=0)
     k2colmeans = np.mean(x[cluster_labels == k2,:], axis=0)
     diff_means = k1colmeans - k2colmeans
     prop_k2 = n2/(n1+n2)
 
-    if iso == True:
-        if sig == None:
-            colmeans = np.mean(x, axis=0)
-            scaledX = x - colmeans
-            sig = math.sqrt(np.sum(scaledX**2) / (n*q - q))
-        else:
-            pass
-        scale_factor = squared_norm_nu * (sig ** 2)
-        #Compute test statistic
-        stat = np.linalg.norm(diff_means)
-    else:
-        if siginv == None:
-            colmeans = np.mean(x, axis=0)
-            scaledX = x - colmeans
-            sig = np.cov(scaledX, rowvar=False)
-            SigInv = np.linalg.inv(sig)
-        else:
-            pass
-        scale_factor = squared_norm_nu
-        #Compute test statistic
-        tdiff_means = np.transpose(diff_means)
-        stat = math.sqrt(np.matmul(np.matmul(tdiff_means, SigInv), diff_means))
+    stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
+                                                         cluster_labels, iso,
+                                                         sig, siginv)
 
     scale_factor = math.sqrt(scale_factor)
     log_survives = [None] * ndraws
@@ -113,7 +80,6 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     k2_constant = (prop_k2 - 1)*diff_means/stat
     orig_k1 = np.transpose(x[cluster_labels == k1,:])
     orig_k2 = np.transpose(x[cluster_labels == k2, :])
-    Xphi = x
 
     for j in range(ndraws):
         if phi[j] < 0:
@@ -164,7 +130,8 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
 def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
     """
     Performs Wald Test
-    :param x: n by p matrix (np.array), containing numeric data
+
+    :param x: n by q matrix (np.array), containing numeric data
     :param k1: integer, selects a cluster to test
     :param k2: integer, selects a cluster to test
     :param cluster_labels: numpy.ndarray, labels of each point (row) in X
@@ -172,16 +139,41 @@ def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
     not
     :param sig: optional scalar specifying sigma,  relevant if iso == True
     :param siginv: optional matrix specifying Sigma^-1, relevant if iso == False
+    :return:
+        - stat - float, the test statistic: Euclidean distance between mean of
+                 cluster k1 and mean of cluster k2
+        - pval - float, the approximate p value
     """
-    # check to make sure X is 2D ndarray
+    stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
+                                                         cluster_labels, iso,
+                                                         sig, siginv)
+
+    rows, cols = x.shape
+    q = cols
+    pval = 1 - scipy.stats.ncx2.cdf(x=(stat ** 2) / scale_factor, df=q, nc=0)
+    return stat, pval
+
+
+def calculate_scale_factor_and_stat(x, k1, k2, cluster_labels, iso, sig, siginv):
+    """ Calculates scale factor and test statistic given iso and sig
+    :param x: n by q matrix (np.array), containing numeric data
+    :param k1: integer, selects a cluster to test
+    :param k2: integer, selects a cluster to test
+    :param cluster_labels: numpy.ndarray, labels of each point (row) in X
+    :param iso: boolean, if True isotropic covariance matrix model, otherwise
+    not
+    :param sig: optional scalar specifying sigma,  relevant if iso == True
+    :param siginv: optional matrix specifying Sigma^-1, relevant if iso == False
+    :return:
+        - stat - float, the test statistic: Euclidean distance between mean of
+                 cluster k1 and mean of cluster k2
+        - scale_factor - float, scale factor for p value calculation
+    """
     rows, cols = x.shape
     n = rows
     q = cols
 
     unique, counts = np.unique(cluster_labels, return_counts=True)
-    #check to make sure K (number of clusters) is between 2 and n
-    #check to make sure k1 and k2 are between 0 and K-1
-    #maybe check to make sure iso is true or false, or set default to true (as is done here)
     k1colmeans = np.mean(x[cluster_labels == k1, :], axis=0)
     k2colmeans = np.mean(x[cluster_labels == k2, :], axis=0)
     diff_means = k1colmeans - k2colmeans
@@ -191,8 +183,6 @@ def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
     n2 = points_per_cluster[k2]
     squared_norm_nu = (1 / n1) + (1 / n2)
 
-    # NOTE: THIS CODE IS COPIED PASTED FROM STATTEST_CLUSTER_APPROX! Make
-    # function
     if iso:
         if sig is None:
             colmeans = np.mean(x, axis=0)
@@ -216,5 +206,23 @@ def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
         tdiff_means = np.transpose(diff_means)
         stat = math.sqrt(np.matmul(np.matmul(tdiff_means, siginv), diff_means))
 
-    pval = 1 - scipy.stats.ncx2.cdf(x=(stat ** 2) / scale_factor, df=q, nc=0)
-    return stat, pval
+    return stat, scale_factor
+
+
+def preserve_cl(cl, cl_phi, k1, k2):
+    """ Helper function for test_clusters_approx
+    Checks if Ck, Ck' in C(x'(phi)). Returns True if Ck, Ck' in (C(x'(phi))),
+    False otherwise. Checks if clusters in original cluster labelset are the
+    same size as clusters in perturbed data labelset
+
+    :param cl: list or numpy.ndarray, cluster labels from initial input
+    :param cl_phi: list or numpy.ndarray, cluster labels of perturbed data
+    :param k1: integer, index of cluster involved in test
+    :param k2: integer, intex of cluster involved in test
+    :return: True if Ck, Ck' in (C(x'(phi))), False otherwise
+    """
+    df = pd.DataFrame({'cl':cl, 'cl_phi':cl_phi})
+    tab = pd.crosstab(index=df['cl'], columns=df['cl_phi'])
+    k1_in = (sum(tab.iloc[k1, :] != 0) == 1) and (sum(tab.iloc[:, k1] != 0) == 1)
+    k2_in = (sum(tab.iloc[k2, :] != 0) == 1) and (sum(tab.iloc[:, k2] != 0) == 1)
+    return k1_in and k2_in
