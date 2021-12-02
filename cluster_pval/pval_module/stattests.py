@@ -60,6 +60,7 @@ def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
     #make sure siginv is none or qxq np.ndarray
 
 
+
 def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
                              positional_arguments, keyword_arguments,
                              iso=True, sig=None, siginv=None, ndraws=2000):
