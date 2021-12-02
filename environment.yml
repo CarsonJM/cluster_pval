@@ -1,4 +1,3 @@
-name: Cluster_PVal
 channels:
   - defaults
 dependencies:
