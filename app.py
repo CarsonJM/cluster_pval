@@ -94,6 +94,7 @@ def parse_contents(contents, filename, date):
             style_cell={'textAlign': 'left'}
         ),
 
+
         html.Hr(),
 
         dcc.Graph(

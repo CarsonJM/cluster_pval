@@ -17,3 +17,4 @@ def cluster_plot(df, x, y, color, hover):
     },
     title="Scatter plot of clustered cells",
     template="simple_white")
+    
