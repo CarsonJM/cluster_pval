@@ -99,4 +99,3 @@ dependencies:
   - yaml=0.2.5
   - zlib=1.2.11
   - zstd=1.4.9
-prefix: /home/carsonjm/miniconda3/envs/Cluster_PVal
