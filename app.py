@@ -1,6 +1,7 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+
 import base64
 import datetime
 import io
@@ -11,9 +12,11 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_table
 
+import plotly.express as px
+
 import pandas as pd
 
-from Cluster_PVal import display
+from cluster_pval import display
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -68,7 +71,7 @@ def parse_contents(contents, filename, date):
         if 'csv' in filename:
             df = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')), dtype={'cluster': str})
-            fig = display.cluster_plot(df, 'x', 'y', 'cluster', 'cell')
+            fig = px.scatter(df, x='x', y='y', color='cluster')
 
     except Exception as e:
         print(e)
