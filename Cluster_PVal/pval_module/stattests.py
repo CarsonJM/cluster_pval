@@ -20,6 +20,24 @@ import numpy as np
 import pandas as pd
 
 def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
+    """
+    Checks to make sure parameters given to pvalue functions are formatted
+    correctly. Ensures x is 2d ndarray, k is between 2 and n, k1 and k2 are
+    between 0 and k-1, iso is boolean, sig is float or int, siginv is either
+    None or numpy ndarray with dimensions of covariance matrix
+    ((number of x cols) by (number of x cols)).
+
+    :param x: n by q matrix (np.array), containing numeric data
+    :param k1: integer, selects cluster to test, must be between 0 and k-1
+    :param k2: integer, selects cluster to test, must be between 0 and k-1
+    :param cluster_labels: numpy.ndarray, labels of each point (row) in X,
+    used here to find k
+    :param iso: boolean, if True isotrophic covariance matrix model,
+    otherwise not
+    :param sig: optional scalar specifying sigma,  must be float or int
+    :param siginv: optional matrix specifying Sigma^-1, must be either None
+    or np.ndarray with dimensions qxq
+    """
     pass
     # check to make sure X is 2D ndarray
     #check to make sure K (number of clusters) is between 2 and n

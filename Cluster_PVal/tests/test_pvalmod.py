@@ -2,17 +2,30 @@
 Tests for pval module
 """
 
+import unittest
+
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
-import unittest
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from pval_module.stattests import stattest_clusters_approx
 from pval_module.stattests import wald_test
 
-class TestPvalModule(unittest.TestCase):
 
-    def test_smoke_stattest_clusters_approx(self):
+class TestPvalModule(unittest.TestCase):
+    """ Unittest class holding tests for pval module
+
+    Args:
+        None in addition to those inherited from unittest.Testcase
+    Attributes:
+        None in addition to those inherited from unittest.Testcase
+    Methods:
+
+    Functions:
+    """
+
+    @classmethod
+    def test_smoke_gao(cls):
         """
         simple smoke test to make sure stattest_clusters_approx function runs
         :return: nothing
@@ -27,19 +40,21 @@ class TestPvalModule(unittest.TestCase):
                       [60, 78],
                       [70, 55],
                       [80, 91], ])
-        K = 2
+        k = 2
         cl_fun = AgglomerativeClustering
         positional_arguments = []
-        keyword_arguments = {'n_clusters': K, 'affinity': 'euclidean',
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
                              'linkage': 'average'}
         cluster = cl_fun(*positional_arguments, **keyword_arguments)
         cluster.fit_predict(x)
         k1 = 0
         k2 = 1
         stattest_clusters_approx(x, k1, k2, cluster.labels_, cl_fun,
-                             positional_arguments, keyword_arguments,)
+                                 positional_arguments, keyword_arguments, )
 
-    def test_smoke_wald_test(self):
+
+    @classmethod
+    def test_smoke_wald(cls):
         """
         simple smoke test to make sure wald_test function runs
         :return: nothing
@@ -54,10 +69,10 @@ class TestPvalModule(unittest.TestCase):
                       [60, 78],
                       [70, 55],
                       [80, 91], ])
-        K = 2
+        k = 2
         cl_fun = AgglomerativeClustering
         positional_arguments = []
-        keyword_arguments = {'n_clusters': K, 'affinity': 'euclidean',
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
                              'linkage': 'average'}
         cluster = cl_fun(*positional_arguments, **keyword_arguments)
         cluster.fit_predict(x)
@@ -65,7 +80,8 @@ class TestPvalModule(unittest.TestCase):
         k2 = 1
         wald_test(x, k1, k2, cluster.labels_)
 
-    def test_penguin_gao_10000(self):
+    @classmethod
+    def test_penguin_gao_10000(cls):
         """
         Test using Penguin data used in R tutorial
         :return: same results as when using R stattest_clusters_approx function
@@ -73,22 +89,26 @@ class TestPvalModule(unittest.TestCase):
         penguin_data = np.genfromtxt(
             'tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
-        K = 5
-        #set linkage to average to match R script
+        k = 5
+        # set linkage to average to match R script
         positional_arguments = []
-        keyword_arguments = {'n_clusters':K, 'affinity':'euclidean', 'linkage':'average'}
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
         cluster = AgglomerativeClustering(**keyword_arguments)
         cluster.fit_predict(penguin_data)
-        #flipped these axes to match figure in R
-        #plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
+        # flipped these axes to match figure in R
+        # plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
         # c=cluster.labels_, cmap='rainbow')
-        #print (cluster.labels_)
-        #plt.show()
+        # print (cluster.labels_)
+        # plt.show()
         k1 = 0
         k2 = 1
         stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
-                                          cluster.labels_, AgglomerativeClustering, positional_arguments,
-                                 keyword_arguments, ndraws=10000)
+                                                      cluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      ndraws=10000)
         passing = True
         assert np.isclose(stat, 10.11433)
         try:
@@ -103,33 +123,38 @@ class TestPvalModule(unittest.TestCase):
             passing = False
             print("pval is {}, meant to be within .02 of "
                   "0.6360161".format(pval))
-        assert(passing == True)
+        assert passing
 
-    def test_penguin_wald(self):
+    @classmethod
+    def test_penguin_wald(cls):
         """
         Test using Penguin data used in R tutorial
         :return: same results as shown when using R wald_test function,
         stat =  10.11433; pval = 0.006226331
         """
-        penguin_data = np.genfromtxt('tests/data_for_tests/penguin_data_subset.txt', delimiter=' ',
-                                     skip_header=1)
-        K = 5
-        #set linkage to average to match R script
+        penguin_data = np.genfromtxt(
+            'tests/data_for_tests/penguin_data_subset.txt', delimiter=' ',
+            skip_header=1)
+        k = 5
+        # set linkage to average to match R script
         positional_arguments = []
-        keyword_arguments = {'n_clusters':K, 'affinity':'euclidean', 'linkage':'average'}
-        cluster = AgglomerativeClustering(**keyword_arguments)
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = AgglomerativeClustering(*positional_arguments,
+                                          **keyword_arguments)
         cluster.fit_predict(penguin_data)
-        #flipped these axes to match figure in R
-        #plt.scatter(penguin_data[:, 1], penguin_data[:, 0], c=cluster.labels_, cmap='rainbow')
-        #plt.show()
+        # flipped these axes to match figure in R
+        # plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
+        #            c=cluster.labels_, cmap='rainbow')
+        # plt.show()
         k1 = 0
         k2 = 1
         stat, pval = wald_test(penguin_data, k1, k2, cluster.labels_)
         assert np.isclose(stat, 10.11433)
         assert np.isclose(pval, 0.006226331)
 
-
-    def test_penguin_gao_200(self):
+    @classmethod
+    def test_penguin_gao_200(cls):
         """
         Test using Penguin data used in R tutorial
         :return: same results as when using R stattest_clusters_approx function
@@ -137,22 +162,26 @@ class TestPvalModule(unittest.TestCase):
         penguin_data = np.genfromtxt(
             'tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
-        K = 5
-        #set linkage to average to match R script
+        k = 5
+        # set linkage to average to match R script
         positional_arguments = []
-        keyword_arguments = {'n_clusters':K, 'affinity':'euclidean', 'linkage':'average'}
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
         cluster = AgglomerativeClustering(**keyword_arguments)
         cluster.fit_predict(penguin_data)
-        #flipped these axes to match figure in R
-        #plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
+        # flipped these axes to match figure in R
+        # plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
         # c=cluster.labels_, cmap='rainbow')
-        #print (cluster.labels_)
-        #plt.show()
+        # print (cluster.labels_)
+        # plt.show()
         k1 = 0
         k2 = 1
         stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
-                                          cluster.labels_, AgglomerativeClustering, positional_arguments,
-                                 keyword_arguments, ndraws=200)
+                                                      cluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      ndraws=200)
         passing = True
         assert np.isclose(stat, 10.11433)
         try:
@@ -167,4 +196,5 @@ class TestPvalModule(unittest.TestCase):
             passing = False
             print("pval is {}, meant to be within .02 of "
                   "0.6360161".format(pval))
-        assert(passing == True)
+        assert passing
+
