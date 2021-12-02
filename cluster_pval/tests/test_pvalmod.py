@@ -24,8 +24,7 @@ class TestPvalModule(unittest.TestCase):
     Functions:
     """
 
-    @classmethod
-    def test_smoke_gao(cls):
+    def test_smoke_gao(self):
         """
         simple smoke test to make sure stattest_clusters_approx function runs
         :return: nothing
@@ -51,10 +50,10 @@ class TestPvalModule(unittest.TestCase):
         k2 = 1
         stattest_clusters_approx(x, k1, k2, cluster.labels_, cl_fun,
                                  positional_arguments, keyword_arguments, )
+        self.assertTrue(True)
 
 
-    @classmethod
-    def test_smoke_wald(cls):
+    def test_smoke_wald(self):
         """
         simple smoke test to make sure wald_test function runs
         :return: nothing
@@ -79,6 +78,7 @@ class TestPvalModule(unittest.TestCase):
         k1 = 0
         k2 = 1
         wald_test(x, k1, k2, cluster.labels_)
+        self.assertTrue(True)
 
 
     def test_penguin_gao_10000(self):

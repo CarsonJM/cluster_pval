@@ -111,7 +111,8 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
                                                          sig, siginv)
 
     scale_factor = math.sqrt(scale_factor)
-    log_survives = [None] * ndraws
+    log_survives = np.empty(ndraws)
+    log_survives[:] = np.NaN
     phi = np.random.normal(size=ndraws)*scale_factor + stat
     k1_constant = prop_k2*diff_means/stat
     k2_constant = (prop_k2 - 1)*diff_means/stat
@@ -139,9 +140,9 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
             log_survives[j] = first_term - middle_term - last_term
 
     #trim down to only survives
-    survives_indexes = [i for i,v in enumerate(log_survives) if v != None]
+    survives_indexes = np.where(~np.isnan(log_survives))
     phi = phi[survives_indexes]
-    log_survives = [v for v in log_survives if v != None]
+    log_survives = log_survives[~np.isnan(log_survives)]
     survives = len(log_survives)
 
     #raise runtime error if nothing survives (test by running with 1 until it
