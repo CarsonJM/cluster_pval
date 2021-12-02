@@ -13,7 +13,7 @@ matrix:
 # if you are updating an old repo or one created by the git command
 # line tools, you may need to use the line below (master instead of
 # main)
-#       - master
+#       - main
 branches:
     only:
         - main
