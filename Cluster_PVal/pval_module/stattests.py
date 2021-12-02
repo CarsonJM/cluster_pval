@@ -39,10 +39,26 @@ def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
     or np.ndarray with dimensions qxq
     """
     pass
+
     # check to make sure X is 2D ndarray
+
     #check to make sure K (number of clusters) is between 2 and n
+
     #check to make sure k1 and k2 are between 0 and K-1
-    #maybe check to make sure iso is true or false, or set default to true (as is done here)
+
+    #check to make sure cluster_labels length is same as rows of x
+
+    #make sure iso is boolean
+
+    #if iso is true and siginv is not none, error out and say siginv won't be
+    # used if iso is true
+    # if iso is false and sig is not none, error out and say sig won't be
+    # used if iso is false
+
+    #make sure sig is float or int (or none)
+
+    #make sure siginv is none or qxq np.ndarray
+
 
 def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
                              positional_arguments, keyword_arguments,
@@ -65,7 +81,7 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     cl_fun
     :param iso: boolean, if True isotropic covariance matrix model, otherwise
     not
-    :param sig: optional scalar specifying sigma,  relevant if iso == True
+    :param sig: optional scalar specifying sigma,  relevant if iso is True
     :param siginv: optional matrix specifying Sigma^-1, relevant if
     iso == False
     :param ndraws: integer, selects the number of importance samples, default
@@ -76,6 +92,8 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
         - pval - float, the approximate p value
         - stderr - float, the standard error of the p-value estimate
     """
+    #make sure ndraws >= 0
+
     rows, cols = x.shape
     q = cols
     unique, counts = np.unique(cluster_labels, return_counts=True)
@@ -180,8 +198,8 @@ def calculate_scale_factor_and_stat(x, k1, k2, cluster_labels, iso, sig, siginv)
     :param cluster_labels: numpy.ndarray, labels of each point (row) in X
     :param iso: boolean, if True isotropic covariance matrix model, otherwise
     not
-    :param sig: optional scalar specifying sigma,  relevant if iso == True
-    :param siginv: optional matrix specifying Sigma^-1, relevant if iso == False
+    :param sig: optional scalar specifying sigma,  relevant if iso is True
+    :param siginv: optional matrix specifying Sigma^-1, relevant if iso is False
     :return:
         - stat - float, the test statistic: Euclidean distance between mean of
                  cluster k1 and mean of cluster k2
