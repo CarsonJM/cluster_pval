@@ -38,6 +38,9 @@ def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
     :param siginv: optional matrix specifying Sigma^-1, must be either None
     or np.ndarray with dimensions qxq
     """
+
+
+
     pass
 
     # check to make sure X is 2D ndarray
@@ -118,12 +121,14 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     k2_constant = (prop_k2 - 1)*diff_means/stat
     orig_k1 = np.transpose(x[cluster_labels == k1,:])
     orig_k2 = np.transpose(x[cluster_labels == k2, :])
+    #print("orig_k2 = {}".format(orig_k2))
 
+    termlist = []
     for j in range(ndraws):
         if phi[j] < 0:
             continue
         #compute the perturbed data set
-        Xphi = x
+        Xphi = np.copy(x)
         Xphi[cluster_labels == k1, :] = np.transpose(orig_k1[:]) + ((phi[j] - stat) * k1_constant)
         Xphi[cluster_labels == k2, :] = np.transpose(orig_k2[:]) + ((phi[j] - stat) * k2_constant)
         #recluster the perturbed data set
@@ -131,18 +136,23 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
         cl_Xphi.fit_predict(Xphi)
 
         if(preserve_cl(cluster_labels, cl_Xphi.labels_, k1, k2)):
-            first_term = -((phi[j]/scale_factor)**2)/2 + \
-                         (q-1)*math.log(phi[j]/scale_factor)
-            middle_term = (q/2 - 1)*math.log(2) - math.log(math.gamma(q/2)) -\
-                          math.log(scale_factor)
-            last_term = scipy.stats.norm.logpdf(phi[j], loc=stat,
-                                                scale=scale_factor)
-            log_survives[j] = first_term - middle_term - last_term
+            first_term = -((phi[j]/scale_factor)**2)/2
+            second_term = (q-1)*math.log(phi[j]/scale_factor)
+            third_term = (q/2 -1)*math.log(2)
+            fourth_term = math.log(math.gamma(q/2))
+            fifth_term = math.log(scale_factor)
+            sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
+            termlist.append(sixth_term)
+            log_survives[j] = (first_term + second_term - third_term - fourth_term - fifth_term - sixth_term)
+    #print("average sixth term = {}".format(sum(termlist)/len(termlist)))
+    #print("standard deviation = {}".format(statistics.pstdev(termlist)))
+
 
     #trim down to only survives
     survives_indexes = np.where(~np.isnan(log_survives))
     phi = phi[survives_indexes]
     log_survives = log_survives[~np.isnan(log_survives)]
+    #print("mean(log_survives) = {}".format(log_survives.mean()))
     survives = len(log_survives)
 
     #raise runtime error if nothing survives (test by running with 1 until it
@@ -155,11 +165,14 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
 
     #approximate p values
     log_survives_shift = log_survives - max(log_survives)
+    #print("mean log_survives_shift = {}".format(np.mean(log_survives_shift)))
     props = np.exp(log_survives_shift)/sum(np.exp(log_survives_shift))
+    #print("mean(props)= {}".format(props.mean()))
     pval = sum(props[phi >= stat])
-    var_pval = (1-pval)**2*sum(props[phi >= stat]**2) + pval**2*sum(props[phi
-                                                                      <
-                                                                          stat]**2)
+    #print("props[phi >= stat]")
+    #print(props[phi >= stat])
+    var_pval = (1-pval)**2 * sum(props[phi >= stat]**2) + pval**2 * \
+               sum(props[phi<stat]**2)
     stderr = math.sqrt(var_pval)
 
     return stat, pval, stderr
