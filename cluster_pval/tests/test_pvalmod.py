@@ -128,8 +128,7 @@ class TestPvalModule(unittest.TestCase):
         self.assertTrue(passing)
 
 
-    @classmethod
-    def test_penguin_wald(cls):
+    def test_penguin_wald(self):
         """
         One-shot test using Penguin data used in R tutorial
         :return: same results as shown when using R wald_test function,
@@ -155,6 +154,7 @@ class TestPvalModule(unittest.TestCase):
         stat, pval = wald_test(penguin_data, k1, k2, cluster.labels_)
         assert np.isclose(stat, 10.11433)
         assert np.isclose(pval, 0.006226331)
+        self.assertTrue(True)
 
 
     def test_penguin_gao_200(self):
