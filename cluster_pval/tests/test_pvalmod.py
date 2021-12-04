@@ -330,12 +330,237 @@ class TestPvalModule(unittest.TestCase):
             print("pval is {}, should be greater than .1".format(pval))
         self.assertTrue(passing)
 
+    def test_gao_survives0(self):
+        """
+        One shot test to make sure Runtime Error raised if survives == 0
+        Running same code as test_penguin_gao_200 but ndraws = 1, running
+        until you get runtime error
+        """
+        penguin_data = np.genfromtxt(
+            'tests/data_for_tests/penguin_data_subset.txt',
+            delimiter=' ', skip_header=1)
+        k = 5
+        # set linkage to average to match R script
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = AgglomerativeClustering(**keyword_arguments)
+        cluster.fit_predict(penguin_data)
+        k1 = 0
+        k2 = 1
+        passing = False
+        for i in range(100):
+            try:
+                stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
+                                                      cluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      ndraws=1)
+            except RuntimeError:
+                passing = True
+                break
+        self.assertTrue(passing)
 
-#sig only matters if iso is true
+####### EDGE TESTS ###########
+    def test_gao_ndraws_valueerror(self):
+        """
+        Edge test to make sure ValueError raised if ndraws < 0
+        Running same code as test_penguin_gao_200 but ndraws = -1
+        """
+        penguin_data = np.genfromtxt(
+            'tests/data_for_tests/penguin_data_subset.txt',
+            delimiter=' ', skip_header=1)
+        k = 5
+        # set linkage to average to match R script
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = AgglomerativeClustering(**keyword_arguments)
+        cluster.fit_predict(penguin_data)
+        k1 = 0
+        k2 = 1
+        with self.assertRaises(ValueError):
+            stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      ndraws=-1)
 
-#siginv only matters is iso is false
+
+    def test_x(self):
+        """
+        Edge test to make sure ValueError raised when x is not 2d numpy array
+        Tests first with 3d numpy array, then 1d numpy array, than 2d list,
+        last checks if x contains any nans
+        """
+        # 3d numpy array
+        x = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+        k1 = 0
+        k2 = 1
+        cluster_labels = np.array([0, 1, 0, 1])
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
+
+        # 1d numpy array
+        x = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+        cluster_labels = [0, 1, 0, 1, 0, 1, 0, 1]
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
+
+        # 2d list
+        x = [[5, 3],
+              [10, 15],
+              [15, 12],
+              [24, 10],
+              [30, 30],
+              [85, 70],
+              [71, 80],
+              [60, 78],
+              [70, 55],
+              [80, 91], ]
+        cluster_labels = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
+
+        # contains nans
+        x = np.array([[5., 3.],
+                      [10., 15],
+                      [15., 12],
+                      [24., 10],
+                      [30., 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        x[1,1] = np.nan
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
 
 
-#test that makes sure RuntimeError thrown if survives == 0 in
-# stattest_clusters_approx (run with ndraws = 1)
 
+    def test_clusterlabels(self):
+        """
+        Edge test to make sure ValueError raised when cluster_labels is wrong.
+        Checks that ValueError is thrown if cluster_labels is too short,
+        too long, not a numpy ndarray, not one-dimensional, or contains nans.
+        """
+        x = np.array([[5, 3],
+                      [10, 15],
+                      [15, 12],
+                      [24, 10],
+                      [30, 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        k = 2
+        cl_fun = AgglomerativeClustering
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = cl_fun(*positional_arguments, **keyword_arguments)
+        cluster.fit_predict(x)
+        k1 = 0
+        k2 = 1
+
+        # cluster_labels too short
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, np.array([1,0]))
+        # cluster_labels too long
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, np.zeros(100))
+        # cluster_labels list (not numpy array)
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, [1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
+        # cluster_labels not one dimensional
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, np.zeros((5,2)))
+        #cluster_labels contains nan values
+        cluster_labels = np.array([1., 0, 1, 0, 1, 0, 1, 0, 1, 0])
+        cluster_labels[0] = np.nan
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
+
+    def test_iso_bool(self):
+        """
+        Edge test to make sure ValueError raised when iso isn't boolean
+        """
+        x = np.array([[5, 3],
+                      [10, 15],
+                      [15, 12],
+                      [24, 10],
+                      [30, 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        k = 2
+        cl_fun = AgglomerativeClustering
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = cl_fun(*positional_arguments, **keyword_arguments)
+        cluster.fit_predict(x)
+        k1 = 0
+        k2 = 1
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso="hello")
+
+    def test_iso_sig_siginv(self):
+        """ Edge test to make sure sig and siginv are correct.
+         Checks to make sure errors thrown if iso = True and siginv != None,
+         if iso = False and sig != None, if sig is not a float or int,
+         and if siginv is not a qxq ndarray.
+        """
+        x = np.array([[5, 3],
+                      [10, 15],
+                      [15, 12],
+                      [24, 10],
+                      [30, 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        k = 2
+        cl_fun = AgglomerativeClustering
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = cl_fun(*positional_arguments, **keyword_arguments)
+        cluster.fit_predict(x)
+        k1 = 0
+        k2 = 1
+        siginv = np.array([[1, 1], [1, 1]])
+
+        # iso True siginv not None
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=True, siginv = siginv)
+
+        # iso False, sig not None
+        sig = 5
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=False, sig = sig)
+
+        # iso True, siginv None, sig not float or int
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=True, sig="Hello")
+
+        #iso False, sig None, siginv 2x2 list
+        siginv = [[1, 1], [1, 1]]
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)
+
+        #iso False, sig None, siginv 1x1 numpy array (incorrect dimensions)
+        siginv = np.array([1,2])
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)
+
+        #iso False, sig None, siginv 2x2x2 numpy array (incorrect dimensions)
+        siginv = np.zeros((2, 2, 2))
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)

@@ -19,7 +19,7 @@ import scipy.stats
 import numpy as np
 import pandas as pd
 
-def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
+def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
     Checks to make sure parameters given to pvalue functions are formatted
     correctly. Ensures x is 2d ndarray, k is between 2 and n, k1 and k2 are
@@ -38,25 +38,78 @@ def check_input(x, k1, k2, cluster_labels, iso, sig, siginv):
     :param siginv: optional matrix specifying Sigma^-1, must be either None
     or np.ndarray with dimensions qxq
     """
+    # check to make sure types of all parameters are as we expect
+    if not type(x) == np.ndarray:
+        raise ValueError("x must be 2-dimensional numpy array")
+    if not type(k1) == int and type(k2) == int:
+        raise ValueError("k1 and k2 must be integers between 0 and K-1")
+    if not type(cluster_labels) == np.ndarray:
+        raise ValueError("cluster_labels must be 1-dimensional numpy array")
+    if not type(iso) == bool:
+        raise ValueError("iso must be 'True' or 'False'")
+
+    # if iso is false and sig is not none, error out and say sig won't be
+    # used if iso is false
+    if iso is False and not sig is None:
+        raise ValueError("If iso = False, sig will not be used. Reevaluate if "
+                         "you want iso = True or want to set sig = None")
+
+    # if iso is true and siginv is not none, error out and say siginv won't be
+    # used if iso is true
+    if iso is True and not siginv is None:
+        raise ValueError("If iso = True, siginv will not be used. Reevaluate "
+                         "if you want iso = True or want to set siginv = None")
+
+    # check types of sig and siginv
+    if not type(sig) == float and not type(sig) == int and not sig is None:
+        raise ValueError("sig must be a float or an int scalar")
+    if not type(siginv) == np.ndarray and not siginv is None:
+        raise ValueError("siginv must be a qxq numpy array (considering x's "
+                         "dimensions to be nxq)")
+
+    # check to make sure siginv has correct dimensions (qxq)
+    rows, cols = x.shape
+    n = rows
+    q = cols
+    if not siginv is None:
+        try:
+            siginv_rows, siginv_cols = siginv.shape
+            if siginv_rows != q or siginv_cols != q:
+                raise ValueError( "siginv must be a qxq numpy array (considering "
+                              "x's dimensions to be nxq)")
+        except ValueError:
+            #this will happen if siginv is 1-dimensional numpy array
+            raise ValueError("siginv must be a qxq numpy array (considering "
+                             "x's dimensions to be nxq)")
+
+    # check to make sure x is 2D ndarray
+    if not x.ndim == 2:
+        raise ValueError("x must be 2-dimensional numpy array")
+    # check to make sure x has no nan values
+    if np.isnan(x).any():
+        raise ValueError("x cannot contain nan values")
+
+    # check to make sure cluster_labels is 1D ndarray
+    if not cluster_labels.ndim == 1:
+        raise ValueError("cluster_labels must be 1-dimensional numpy array")
+    # check to make sure cluster_labels has no nan values
+    if np.isnan(cluster_labels).any():
+        raise ValueError("cluster_labels cannot contain nan values")
+
+    # check to make sure cluster_labels length is same as rows of x
+    if not len(cluster_labels) == n:
+        raise ValueError("cluster_labels must have one label for each point ("
+                         "row of x)")
+
+    # check to make sure K (number of clusters in cluster_labels) is between 2
+    # and n
+    unique, counts = np.unique(cluster_labels, return_counts=True)
 
 
-
-    pass
-
-    # check to make sure X is 2D ndarray
-
-    #check to make sure K (number of clusters) is between 2 and n
 
     #check to make sure k1 and k2 are between 0 and K-1
 
-    #check to make sure cluster_labels length is same as rows of x
 
-    #make sure iso is boolean
-
-    #if iso is true and siginv is not none, error out and say siginv won't be
-    # used if iso is true
-    # if iso is false and sig is not none, error out and say sig won't be
-    # used if iso is false
 
     #make sure sig is float or int (or none)
 
@@ -96,7 +149,12 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
         - pval - float, the approximate p value
         - stderr - float, the standard error of the p-value estimate
     """
+
+    check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv)
+
     #make sure ndraws >= 0
+    if ndraws < 0:
+        raise ValueError("ndraws must be >= 0")
 
     rows, cols = x.shape
     q = cols
@@ -121,9 +179,7 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     k2_constant = (prop_k2 - 1)*diff_means/stat
     orig_k1 = np.transpose(x[cluster_labels == k1,:])
     orig_k2 = np.transpose(x[cluster_labels == k2, :])
-    #print("orig_k2 = {}".format(orig_k2))
 
-    termlist = []
     for j in range(ndraws):
         if phi[j] < 0:
             continue
@@ -142,17 +198,13 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
             fourth_term = math.log(math.gamma(q/2))
             fifth_term = math.log(scale_factor)
             sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
-            termlist.append(sixth_term)
             log_survives[j] = (first_term + second_term - third_term - fourth_term - fifth_term - sixth_term)
-    #print("average sixth term = {}".format(sum(termlist)/len(termlist)))
-    #print("standard deviation = {}".format(statistics.pstdev(termlist)))
 
 
     #trim down to only survives
     survives_indexes = np.where(~np.isnan(log_survives))
     phi = phi[survives_indexes]
     log_survives = log_survives[~np.isnan(log_survives)]
-    #print("mean(log_survives) = {}".format(log_survives.mean()))
     survives = len(log_survives)
 
     #raise runtime error if nothing survives (test by running with 1 until it
@@ -165,12 +217,8 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
 
     #approximate p values
     log_survives_shift = log_survives - max(log_survives)
-    #print("mean log_survives_shift = {}".format(np.mean(log_survives_shift)))
     props = np.exp(log_survives_shift)/sum(np.exp(log_survives_shift))
-    #print("mean(props)= {}".format(props.mean()))
     pval = sum(props[phi >= stat])
-    #print("props[phi >= stat]")
-    #print(props[phi >= stat])
     var_pval = (1-pval)**2 * sum(props[phi >= stat]**2) + pval**2 * \
                sum(props[phi<stat]**2)
     stderr = math.sqrt(var_pval)
@@ -195,6 +243,7 @@ def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
                  cluster k1 and mean of cluster k2
         - pval - float, the approximate p value
     """
+    check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv)
     stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
                                                          cluster_labels, iso,
                                                          sig, siginv)
