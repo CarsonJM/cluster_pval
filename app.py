@@ -27,6 +27,9 @@ app.layout = html.Div([
         children="Cluster PVal",
         style={
             'textAlign': 'center',
+            'background-color': '#4b2e83',
+            'padding': '30',
+            'font-size': '35'
         }),
 
     html.Div(
