@@ -28,8 +28,8 @@ app.layout = html.Div([
         style={
             'textAlign': 'center',
             'background-color': '#4b2e83',
-            'marginTop': '30',
-            'fontSize': '50',
+            'marginTop': 30,
+            'fontSize': 35,
             'color': 'white'
         }),
 
