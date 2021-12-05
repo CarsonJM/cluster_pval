@@ -41,7 +41,7 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     # check to make sure types of all parameters are as we expect
     if not type(x) == np.ndarray:
         raise ValueError("x must be 2-dimensional numpy array")
-    if not type(k1) == int and type(k2) == int:
+    if not type(k1) == int or not type(k2) == int:
         raise ValueError("k1 and k2 must be integers between 0 and K-1")
     if not type(cluster_labels) == np.ndarray:
         raise ValueError("cluster_labels must be 1-dimensional numpy array")
@@ -67,6 +67,13 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
         raise ValueError("siginv must be a qxq numpy array (considering x's "
                          "dimensions to be nxq)")
 
+    # check to make sure x is 2D ndarray
+    if not x.ndim == 2:
+        raise ValueError("x must be 2-dimensional numpy array")
+    # check to make sure x has no nan values
+    if np.isnan(x).any():
+        raise ValueError("x cannot contain nan values")
+
     # check to make sure siginv has correct dimensions (qxq)
     rows, cols = x.shape
     n = rows
@@ -75,19 +82,12 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
         try:
             siginv_rows, siginv_cols = siginv.shape
             if siginv_rows != q or siginv_cols != q:
-                raise ValueError( "siginv must be a qxq numpy array (considering "
-                              "x's dimensions to be nxq)")
+                raise ValueError( "siginv must be a qxq numpy array "
+                                  "(considering x's dimensions to be nxq)")
         except ValueError:
-            #this will happen if siginv is 1-dimensional numpy array
+            #this will happen if siginv is not 2-dimensional numpy array
             raise ValueError("siginv must be a qxq numpy array (considering "
                              "x's dimensions to be nxq)")
-
-    # check to make sure x is 2D ndarray
-    if not x.ndim == 2:
-        raise ValueError("x must be 2-dimensional numpy array")
-    # check to make sure x has no nan values
-    if np.isnan(x).any():
-        raise ValueError("x cannot contain nan values")
 
     # check to make sure cluster_labels is 1D ndarray
     if not cluster_labels.ndim == 1:
@@ -104,16 +104,14 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     # check to make sure K (number of clusters in cluster_labels) is between 2
     # and n
     unique, counts = np.unique(cluster_labels, return_counts=True)
-
-
+    k = len(unique)
+    if k < 2 or k > n:
+        raise ValueError("cluster_labels must contain at least 2 clusters and "
+                         "no more clusters than there are datapoints in x")
 
     #check to make sure k1 and k2 are between 0 and K-1
-
-
-
-    #make sure sig is float or int (or none)
-
-    #make sure siginv is none or qxq np.ndarray
+    if k1 < 0 or k1 > (k-1) or k2 < 0 or k2 > (k-1):
+        raise ValueError("k1 and k2 must be between 0 and k-1")
 
 
 

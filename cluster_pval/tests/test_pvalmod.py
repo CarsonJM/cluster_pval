@@ -19,8 +19,6 @@ class TestPvalModule(unittest.TestCase):
         None in addition to those inherited from unittest.Testcase
     Attributes:
         None in addition to those inherited from unittest.Testcase
-    Methods:
-
     Functions:
     """
 
@@ -444,7 +442,8 @@ class TestPvalModule(unittest.TestCase):
         """
         Edge test to make sure ValueError raised when cluster_labels is wrong.
         Checks that ValueError is thrown if cluster_labels is too short,
-        too long, not a numpy ndarray, not one-dimensional, or contains nans.
+        too long, not a numpy ndarray, not one-dimensional, or contains nans,
+        or has fewer than 2 clusters.
         """
         x = np.array([[5, 3],
                       [10, 15],
@@ -481,6 +480,10 @@ class TestPvalModule(unittest.TestCase):
         #cluster_labels contains nan values
         cluster_labels = np.array([1., 0, 1, 0, 1, 0, 1, 0, 1, 0])
         cluster_labels[0] = np.nan
+        with self.assertRaises(ValueError):
+            wald_test(x, k1, k2, cluster_labels)
+        #cluster_labesl not between 2 and n:
+        cluster_labels = np.zeros(10)
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster_labels)
 
@@ -551,16 +554,58 @@ class TestPvalModule(unittest.TestCase):
             wald_test(x, k1, k2, cluster.labels_, iso=True, sig="Hello")
 
         #iso False, sig None, siginv 2x2 list
-        siginv = [[1, 1], [1, 1]]
+        thissiginv = [[1, 1], [1, 1]]
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
 
         #iso False, sig None, siginv 1x1 numpy array (incorrect dimensions)
-        siginv = np.array([1,2])
+        thissiginv = np.array([1,2])
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
 
         #iso False, sig None, siginv 2x2x2 numpy array (incorrect dimensions)
-        siginv = np.zeros((2, 2, 2))
+        thissiginv = np.array([[1, 1, 1], [1, 1, 1]])
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=siginv)
+            wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
+
+    def test_k1k2(self):
+        """
+        Edge test to make sure k1 and k2 are ints
+        """
+        x = np.array([[5, 3],
+                      [10, 15],
+                      [15, 12],
+                      [24, 10],
+                      [30, 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        k = 2
+        cl_fun = AgglomerativeClustering
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'average'}
+        cluster = cl_fun(*positional_arguments, **keyword_arguments)
+        cluster.fit_predict(x)
+        k1 = "hello"
+        k2 = True
+        # k1 not an int
+        with self.assertRaises(ValueError):
+            stattest_clusters_approx(x, k1, 2, cluster.labels_, cl_fun,
+                                 positional_arguments, keyword_arguments)
+        # k2 not an int
+        with self.assertRaises(ValueError):
+            stattest_clusters_approx(x, 1, k2, cluster.labels_, cl_fun,
+                                 positional_arguments, keyword_arguments)
+        k1 = -1
+        k2 = 2
+        # k1 not between 0 and k-1
+        with self.assertRaises(ValueError):
+            stattest_clusters_approx(x, k1, 1, cluster.labels_, cl_fun,
+                                 positional_arguments, keyword_arguments)
+        # k2 not between 0 and k-1
+        with self.assertRaises(ValueError):
+            stattest_clusters_approx(x, 0, k2, cluster.labels_, cl_fun,
+                                 positional_arguments, keyword_arguments)
