@@ -23,15 +23,14 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
-    html.H1(
+    html.Header(
         children="Cluster PVal",
         style={
             'textAlign': 'center',
             'background-color': '#4b2e83',
             'fontSize': '60px',
             'color': 'white',
-            'height': '180px',
-            'margin': '60px'
+            'height': '180px'
         }),
 
     html.Div(
