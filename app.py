@@ -30,7 +30,6 @@ app.layout = html.Div([
             'background-color': '#4b2e83',
             'fontSize': '60px',
             'color': 'white',
-            'height': '180px',
             'padding': '60px'
         }),
 
