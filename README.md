@@ -14,8 +14,22 @@ Envisioned users include Users researchers that work with scRNAseq datasets, sta
 This package is not pip installable. To install please git clone the directory.
 
 ## Directory Layout
-HERE IS AN OVERVIEW OF THE DIRECTORY LAYOUT
-doc: contains documents (component diagrams, user stories & use cases)
+Base Directory: Contains files related to git, travis (for continuous 
+integration), our License, and README
+
+doc: Contains documents related to tool design (component diagrams, user 
+stories & use cases)
+
+cluster_pval: Contains modules required to build tool as descrived in the 
+component diagram in doc folder. Contains the following folders:
+cluster_module: contains module responsible for clustering data
+data_format: contains module responsible for formatting input data
+display: contains module responsible for displaying clustered data and p 
+value after p value calculation
+pval_module: contains module responsible for calculating wald and adjusted p 
+values
+tests: contains unit tests for each module and folder containing data for 
+unit tests.
 
 ## Usage
 
