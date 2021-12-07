@@ -5,7 +5,7 @@ tests for cluster_module function
 import unittest
 import numpy as np
 import pandas as pd
-from src.cluster_function import hierarchical_clustering
+from cluster_module.cluster_function import hierarchical_clustering
 
 
 class ClusterModuleTest(unittest.TestCase):
