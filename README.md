@@ -9,9 +9,10 @@ This tool calculates the difference in means between RNAseq clusters and reports
 Envisioned users include Users researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and datascientists who may want to calculate adjusted p values for other types of data.
 
 
-## Installation
+## Installation and Requirements
 
-This package is not pip installable. To install please git clone the directory.
+This package is not pip installable. To install please git clone the directory. 
+This package requires installation of numpy, pandas, scikit-learn, and scipy
 
 ## Directory Layout
 Base Directory: Contains files related to git, travis (for continuous 
