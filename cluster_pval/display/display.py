@@ -9,7 +9,7 @@ import umap
 from cluster_pval import cluster_module
 import plotly.express as px
 
-def cluster_plot(df, x, y, color, hover):    
+def cluster_plot(df):    
     standard_embedding = umap.UMAP(random_state=42).fit_transform(df)
 
     df_clustered, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.hierarchical_clustering(df, 3)
