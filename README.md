@@ -22,12 +22,17 @@ stories & use cases)
 
 cluster_pval: Contains modules required to build tool as descrived in the 
 component diagram in doc folder. Contains the following folders:
+
 cluster_module: contains module responsible for clustering data
+
 data_format: contains module responsible for formatting input data
+
 display: contains module responsible for displaying clustered data and p 
 value after p value calculation
+
 pval_module: contains module responsible for calculating wald and adjusted p 
 values
+
 tests: contains unit tests for each module and folder containing data for 
 unit tests.
 
