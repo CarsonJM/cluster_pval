@@ -1,4 +1,9 @@
 name: test-environment
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+  
 dependencies:
   - numpy
   - pandas
