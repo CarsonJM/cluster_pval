@@ -83,7 +83,7 @@ def parse_contents(contents, filename):
             df = pd.read_csv(
                 io.StringIO(decoded.decode('utf-8')))
             standard_embedding = umap.UMAP(random_state=42).fit_transform(df)
-            df_clustered, cluster_method, df_clustered, nr_of_clusters = cluster_module.hierarchical_clustering(df, 3)
+            df_clustered, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.hierarchical_clustering(df, 3)
             df_clustered = df_clustered.sort_values(['cluster'], ascending=True)
             df_clustered['cluster'] = df_clustered['cluster'].astype(str)
             fig = px.scatter(x=standard_embedding[:, 0], y=standard_embedding[:, 1], color=df_clustered['cluster'], 
