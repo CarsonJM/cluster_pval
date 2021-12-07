@@ -4,3 +4,6 @@ dependencies:
   - pandas
   - scikit-learn
   - scipy
+  - dash
+  - umap-learn
+  - plotly
