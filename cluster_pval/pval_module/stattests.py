@@ -193,6 +193,7 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
             first_term = -((phi[j]/scale_factor)**2)/2
             second_term = (q-1)*math.log(phi[j]/scale_factor)
             third_term = (q/2 -1)*math.log(2)
+            print(q/2)
             fourth_term = math.log(math.gamma(q/2))
             fifth_term = math.log(scale_factor)
             sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
