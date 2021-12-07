@@ -9,8 +9,16 @@ import umap
 from cluster_pval import cluster_module
 import plotly.express as px
 
-def cluster_plot(df, clustered_df):    
-    standard_embedding = umap.UMAP(random_state=42).fit_transform(df)
+def cluster_plot(clustered_df):
+    # pca2 = PCA(n_components=2)
+    # principalComponents = pca2.fit_transform(X_Scale)
+
+    # principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
+
+    # finalDf = pd.concat([principalDf, df[['class']]], axis = 1)
+    # finalDf.head()
+
+    standard_embedding = umap.UMAP(random_state=42).fit_transform(clustered_df)
 
     clustered_df = clustered_df.sort_values(['cluster'], ascending=True)
     clustered_df['cluster'] = clustered_df['cluster'].astype(str)
@@ -19,4 +27,4 @@ def cluster_plot(df, clustered_df):
     title="Scatter plot of clustered cells", 
     template="simple_white")
 
-    return clustered_df
+    return fig
