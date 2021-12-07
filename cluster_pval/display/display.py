@@ -5,6 +5,9 @@ Display
 Functions
 ---------
 """
+import umap
+from cluster_pval import cluster_module
+import plotly.express as px
 
 def cluster_plot(df, x, y, color, hover):    
     standard_embedding = umap.UMAP(random_state=42).fit_transform(df)
