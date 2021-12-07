@@ -11,8 +11,9 @@ Envisioned users include Users researchers that work with scRNAseq datasets, sta
 
 ## Installation and Requirements
 This package is not pip installable. To install please git clone the directory. 
-This package requires that the packages numpy, pandas, scikit-learn, and 
-scipy be installed in order to run.
+
+This package requires the packages numpy, pandas, scikit-learn, 
+scipy, umap-learn, and plotly.
 
 ## Directory Layout
 Base Directory: Contains files related to git, travis (for continuous 
