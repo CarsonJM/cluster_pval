@@ -1,12 +1,11 @@
 """
-Tests for pval module
+Smoke, Edge, and One-Shot Tests for pval module
 """
 
 import unittest
 
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
-# import matplotlib.pyplot as plt
 
 from pval_module.stattests import stattest_clusters_approx
 from pval_module.stattests import wald_test
@@ -20,6 +19,23 @@ class TestPvalModule(unittest.TestCase):
     Attributes:
         None in addition to those inherited from unittest.Testcase
     Functions:
+        test_smoke_gao(self)
+        test_smoke_wald(self)
+        test_penguin_gao_10000(self)
+        test_penguin_wald(self)
+        test_penguin_gao_200(self)
+        test_cells_wald(self)
+        test_penguin_gao_isoFalse_sigNone_siginvNone_200(self)
+        test_penguin_gao_isoFalse_sigNone_siginvqxqndarray_200(self)
+        test_penguin_gao_isoTrue_sig5_200(self)
+        test_gao_survives0(self)
+        test_gao_ndraws_valueerror(self)
+        test_x(self)
+        test_clusterlabels(self)
+        test_iso_bool(self)
+        test_iso_sig_siginv(self)
+        test_k1k2(self)
+
     """
 
     def test_smoke_gao(self):
@@ -96,11 +112,6 @@ class TestPvalModule(unittest.TestCase):
                              'linkage': 'average'}
         cluster = AgglomerativeClustering(**keyword_arguments)
         cluster.fit_predict(penguin_data)
-        # flipped these axes to match figure in R
-        # plt.scatter(penguin_data[:, 1], penguin_data[:, 0],
-        # c=cluster.labels_, cmap='rainbow')
-        # print (cluster.labels_)
-        # plt.show()
         k1 = 0
         k2 = 1
         stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
@@ -190,8 +201,40 @@ class TestPvalModule(unittest.TestCase):
             print("pval is {}, should be >.3".format(pval))
         self.assertTrue(passing)
 
+    def test_cells_wald(self):
+        """
+        One shot test to see the wald test yield significant results for both
+        cell datasets. Should yield stats and p values consistent with those
+        found using R package.
+        """
+        insig_cell_data = np.genfromtxt(
+            'tests/data_for_tests/600tcells.csv',
+            delimiter=',',skip_header=1)
+        k = 3
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'ward'}
+        insigcluster = AgglomerativeClustering(*positional_arguments,
+                                          **keyword_arguments)
+        insigcluster.fit_predict(insig_cell_data)
 
-    ###### GAO TESTS PERMUTING PARAMETERS
+        # Using same siginv matrix as was used in R package (importing here
+        # instead of recalculating)
+        siginv1 = np.genfromtxt(
+            'tests/data_for_tests/SigInv1.csv',
+            delimiter=',', skip_header=1)
+        # wald tests negative control
+        stat, pval = wald_test(insig_cell_data, 0, 1, insigcluster.labels_,
+                               iso=False, siginv = siginv1)
+        assert np.isclose(stat, 4.054059) and np.isclose(pval, 0)
+        stat, pval = wald_test(insig_cell_data, 0, 2, insigcluster.labels_,
+                               iso=False, siginv=siginv1)
+        assert np.isclose(stat, 2.961156) and np.isclose(pval, 9.282575e-13)
+        stat, pval = wald_test(insig_cell_data, 1, 2, insigcluster.labels_,
+                               iso=False, siginv=siginv1)
+        assert np.isclose(stat, 4.760857) and np.isclose(pval, 0)
+
+    ###### Edge Tests
     def test_penguin_gao_isoFalse_sigNone_siginvNone_200(self):
         """
         One-shot test using Penguin data used in R tutorial with

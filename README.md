@@ -9,13 +9,33 @@ This tool calculates the difference in means between RNAseq clusters and reports
 Envisioned users include Users researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and datascientists who may want to calculate adjusted p values for other types of data.
 
 
-## Installation
-
-This package is not pip installable. To install please git clone the directory.
+## Installation and Requirements
+This package is not pip installable. To install please git clone the directory. 
+This package requires that the packages numpy, pandas, scikit-learn, and 
+scipy be installed in order to run.
 
 ## Directory Layout
-HERE IS AN OVERVIEW OF THE DIRECTORY LAYOUT
-doc: contains documents (component diagrams, user stories & use cases)
+Base Directory: Contains files related to git, travis (for continuous 
+integration), our License, and README
+
+doc: Contains documents related to tool design (component diagrams, user 
+stories & use cases)
+
+cluster_pval: Contains modules required to build tool as descrived in the 
+component diagram in doc folder. Contains the following folders:
+
+cluster_module: contains module responsible for clustering data
+
+data_format: contains module responsible for formatting input data
+
+display: contains module responsible for displaying clustered data and p 
+value after p value calculation
+
+pval_module: contains module responsible for calculating wald and adjusted p 
+values
+
+tests: contains unit tests for each module and folder containing data for 
+unit tests.
 
 ## Usage
 
