@@ -19,8 +19,11 @@ def hierarchical_clustering(dataset, nr_of_clusters):
     :param nr_of_clusters: integer nr_of_cluster: number of cluster that should be consdered
 
     Returns:
-    float: result value of query
-    list: list with calculated distances
+    pandas dataframe: input_dataframe (input dataframe with calculated cluster)
+    integer: nr_of_clusters (number of clusters)
+    function: ccl_fun (used function)
+    list: positional_arguments  
+    dictionary: keyword_arguments
    """
     check_value_type1 = isinstance(nr_of_clusters, int)
     if check_value_type1 is False:
@@ -37,7 +40,7 @@ def hierarchical_clustering(dataset, nr_of_clusters):
     ccl_fun = AgglomerativeClustering 
     positional_arguments = []
     keyword_arguments = {'n_clusters': nr_of_clusters, 'affinity': 'euclidean','linkage': 'ward'}
-    return dataset, dataset, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments
+    return dataset, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments
 
 
 
