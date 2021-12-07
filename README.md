@@ -16,6 +16,45 @@ This package requires the packages numpy, pandas, scikit-learn,
 scipy, umap-learn, and plotly.
 
 ## Directory Layout
+
+```bash
+
+cluster_pval
+├── LICENSE
+├── README.md
+├── app.py
+├── cluster_pval
+│   ├── __init__.py
+│   ├── cluster_module
+│   │   ├── __init__.py
+│   │   └── cluster_function.py
+│   ├── display
+│   │   ├── __init__.py
+│   │   └── display.py
+│   ├── pval_module
+│   │   ├── __init__.py
+│   │   └── stattests.py
+│   └── tests
+│       ├── __init__.py
+│       ├── data_for_tests
+│       │   ├── 200tcells_200bcells_200memorycells.csv
+│       │   ├── 600tcells.csv
+│       │   ├── GSE158761_matrix.mtx.gz
+│       │   ├── SigInv1.csv
+│       │   ├── out.csv
+│       │   ├── penguin_data_subset.txt
+│       │   └── penguin_data_subset_with_species.txt
+│       ├── test_cluster_module.py
+│       ├── test_display.py
+│       └── test_pvalmod.py
+├── doc
+│   ├── Component_Diagram.png
+│   ├── USER_STORIES.md
+│   ├── USE_CASES.md
+│   └── images_for_README
+└── environment.yml
+```
+
 Base Directory: Contains files related to git, travis (for continuous 
 integration), the app's dashboard, our License, and README
 
