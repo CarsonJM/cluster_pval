@@ -5,17 +5,18 @@ import base64
 import datetime
 import io
 
-
 import dash
 from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table
-
-import plotly.express as px
+from dash import dcc
+from dash import html
+from dash import dash_table
 
 import pandas as pd
+import plotly.express as px
+import umap
 
+from cluster_pval import pval_module
+from cluster_pval import cluster_module
 from cluster_pval import display
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -23,6 +24,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div([
+    # title 
     html.Header(
         children="Cluster PVal",
         style={
@@ -33,8 +35,10 @@ app.layout = html.Div([
             'padding': '30px'
         }),
 
+    # horizontal line
     html.Hr(),
 
+    # subtitle
     html.Div(
         children="""
         Comparing traditional and adjusted p-values when comparing differences of means
@@ -46,6 +50,7 @@ app.layout = html.Div([
     
     html.Hr(), 
 
+    # file upload 
     dcc.Upload(
         id='upload-data',
         children=html.Div([
@@ -62,50 +67,69 @@ app.layout = html.Div([
             'textAlign': 'center',
             'margin': '10px'
         },
-        # Allow multiple files to be uploaded
-        multiple=True
     ),
 
+    # data upload object
     html.Div(id='output-data-upload')
 ])
 
-def parse_contents(contents, filename, date):
+def parse_contents(contents, filename):
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
 
+    # try reading the file
     try:
         if 'csv' in filename:
             df = pd.read_csv(
-                io.StringIO(decoded.decode('utf-8')), dtype={'cluster': str})
-            fig = px.scatter(df, x='x', y='y', color='cluster')
+                io.StringIO(decoded.decode('utf-8')))
+            standard_embedding = umap.UMAP(random_state=42).fit_transform(df)
+            df_clustered, cluster_method, df_clustered, nr_of_clusters = cluster_module.hierarchical_clustering(df, 3)
+            df_clustered = df_clustered.sort_values(['cluster'], ascending=True)
+            df_clustered['cluster'] = df_clustered['cluster'].astype(str)
+            fig = px.scatter(x=standard_embedding[:, 0], y=standard_embedding[:, 1], color=df_clustered['cluster'], 
+            labels={'x': "UMAP_1", 'y': "UMAP_2", 'color': "Cluster"}, 
+            title="Scatter plot of clustered cells", 
+            template="simple_white")
+        elif 'csv' not in filename:
+            raise TypeError
+            
 
+    # return exception if file is not read
     except Exception as e:
         print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
+        return html.Div(children=[
+            'The input file is not in csv format'],
+            style={
+            'textAlign': 'center',
+            'fontSize': '30px'
+            }
+        )
 
+    # objects to return after reading the file
     return html.Div([
         html.Hr(),
 
+        # return file name
         html.Div(children=[
             'Filename: ', filename
             ]),
 
-        html.Div(children=[
-            'Date: ', datetime.datetime.fromtimestamp(date)
-            ]),
-
+        # return a preview of the file showing first 10 lines
         dash_table.DataTable(
             data=df.to_dict('records'),
             columns=[{'name': i, 'id': i} for i in df.columns],
             page_size=10,
-            style_cell={'textAlign': 'left'}
+            style_table={'overflowX': 'auto'},
+            style_cell={
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis',
+            'textAlign': 'left'
+            }
         ),
-
 
         html.Hr(),
 
+        # return visualization of clustering
         dcc.Graph(
         id='example-graph',
         figure=fig
@@ -114,14 +138,12 @@ def parse_contents(contents, filename, date):
 
 @app.callback(Output('output-data-upload', 'children'),
               Input('upload-data', 'contents'),
-              State('upload-data', 'filename'),
-              State('upload-data', 'last_modified'))
-
-def update_output(list_of_contents, list_of_names, list_of_dates):
-    if list_of_contents is not None:
+              State('upload-data', 'filename')
+              )
+def update_output(contents, filename):
+    if contents is not None:
         children = [
-            parse_contents(c, n, d) for c, n, d in
-            zip(list_of_contents, list_of_names, list_of_dates)]
+            parse_contents(contents, filename)]
         return children
 
 if __name__ == '__main__':

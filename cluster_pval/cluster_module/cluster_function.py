@@ -3,7 +3,7 @@
 """
 Created on Mon Nov 29 15:01:35 2021
 
-Cluster function for hierarchical clustering
+Cluster function for hierarchical clustering of a pandas dataset based on requested number of clusters
 """
 
 import pandas as pd
@@ -15,8 +15,8 @@ def hierarchical_clustering(dataset, nr_of_clusters):
     Function to cluster data hierarchically
     
     Parameters:
-    :param1 pandas dataframe dataset: dataframe with RNA seq data
-    :param2 integer nr_of_cluster: number of cluster that should be consdered
+    :param dataset: pandas dataframe dataset: dataframe with RNA seq data
+    :param nr_of_clusters: integer nr_of_cluster: number of cluster that should be consdered
 
     Returns:
     float: result value of query
@@ -33,6 +33,11 @@ def hierarchical_clustering(dataset, nr_of_clusters):
     else:
         pass
     cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
-    cluster_method = "AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')"
     dataset['cluster'] = cluster.fit_predict(dataset)
-    return dataset, cluster_method, dataset, nr_of_clusters
+    ccl_fun = AgglomerativeClustering 
+    positional_arguments = []
+    keyword_arguments = {'n_clusters': nr_of_clusters, 'affinity': 'euclidean','linkage': 'ward'}
+    return dataset, dataset, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments
+
+
+

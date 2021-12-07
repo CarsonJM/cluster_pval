@@ -16,7 +16,10 @@ scipy be installed in order to run.
 
 ## Directory Layout
 Base Directory: Contains files related to git, travis (for continuous 
-integration), our License, and README
+integration), the app's dashboard, our License, and README
+
+app.py: Contains code for organizing the cluster pval dashboard and incorporating
+the functions from all other modules.
 
 doc: Contains documents related to tool design (component diagrams, user 
 stories & use cases)
