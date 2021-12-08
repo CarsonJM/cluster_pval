@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 
 from pval_module.stattests import stattest_clusters_approx
+from pval_module.stattests import test_hier_clusters_exact
 from pval_module.stattests import wald_test
 
 
@@ -24,7 +25,7 @@ class TestPvalModule(unittest.TestCase):
         test_penguin_gao_10000(self)
         test_penguin_wald(self)
         test_penguin_gao_200(self)
-        test_cells_wald(self)
+        test_insig_cells(self)
         test_penguin_gao_isoFalse_sigNone_siginvNone_200(self)
         test_penguin_gao_isoFalse_sigNone_siginvqxqndarray_200(self)
         test_penguin_gao_isoTrue_sig5_200(self)
@@ -63,7 +64,7 @@ class TestPvalModule(unittest.TestCase):
         k1 = 0
         k2 = 1
         stattest_clusters_approx(x, k1, k2, cluster.labels_, cl_fun,
-                                 positional_arguments, keyword_arguments, )
+                                 positional_arguments, keyword_arguments)
         self.assertTrue(True)
 
 
@@ -99,7 +100,8 @@ class TestPvalModule(unittest.TestCase):
         """
         One-shot test using Penguin data used in R tutorial with ndraws same
         as shown in R tutorial.
-        :return: same results as when using R stattest_clusters_approx function:
+        :return: nothing so long as function yields same results as when
+        using R stattest_clusters_approx function:
         stat = 10.11433, stderr ~ .01084133, pval > .5
         """
         penguin_data = np.genfromtxt(
@@ -139,7 +141,8 @@ class TestPvalModule(unittest.TestCase):
     def test_penguin_wald(self):
         """
         One-shot test using Penguin data used in R tutorial
-        :return: same results as shown when using R wald_test function,
+        :return: nothing so long as function yields same results as when
+        using R wald_test function:
         stat =  10.11433; pval = 0.006226331
         """
         penguin_data = np.genfromtxt(
@@ -165,7 +168,8 @@ class TestPvalModule(unittest.TestCase):
         One-shot test using Penguin data used in R tutorial with
         consistent parameters except ndraws=200 (to expedite function running
         while testing)
-        :return: same results as when using R stattest_clusters_approx function:
+        :return: nothing so long as function yields same results as when
+        using R stattest_clusters_approx function:
         stat = 10.11433; stderr ~ .07; p > .3
         """
         penguin_data = np.genfromtxt(
@@ -201,11 +205,12 @@ class TestPvalModule(unittest.TestCase):
             print("pval is {}, should be >.3".format(pval))
         self.assertTrue(passing)
 
-    def test_cells_wald(self):
+    def test_insig_cells(self):
         """
         One shot test to see the wald test yield significant results for both
-        cell datasets. Should yield stats and p values consistent with those
-        found using R package.
+        cell datasets.
+        :return: nothing so long as function yields same results as when
+        using R wald_test function:
         """
         insig_cell_data = np.genfromtxt(
             'tests/data_for_tests/600tcells.csv',
@@ -233,6 +238,39 @@ class TestPvalModule(unittest.TestCase):
         stat, pval = wald_test(insig_cell_data, 1, 2, insigcluster.labels_,
                                iso=False, siginv=siginv1)
         assert np.isclose(stat, 4.760857) and np.isclose(pval, 0)
+
+        # stattest_clusters_approx negative controls
+        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 0, 1,
+                                                      insigcluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      iso=False,
+                                                      siginv=siginv1,
+                                                      ndraws = 200)
+        assert np.isclose(stat, 4.054059) and np.isnan(pval) and \
+               np.isnan(stderr)
+        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 0, 2,
+                                                      insigcluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      iso=False,
+                                                      siginv=siginv1,
+                                                      ndraws=200)
+        assert np.isclose(stat, 2.961156) and np.isnan(pval) and \
+               np.isnan(stderr)
+        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 1, 2,
+                                                      insigcluster.labels_,
+                                                      AgglomerativeClustering,
+                                                      positional_arguments,
+                                                      keyword_arguments,
+                                                      iso=False,
+                                                      siginv=siginv1,
+                                                      ndraws=200)
+        assert np.isclose(stat, 4.760857) and np.isnan(pval) and \
+               np.isnan(stderr)
+
 
     ###### Edge Tests
     def test_penguin_gao_isoFalse_sigNone_siginvNone_200(self):
@@ -652,3 +690,59 @@ class TestPvalModule(unittest.TestCase):
         with self.assertRaises(ValueError):
             stattest_clusters_approx(x, 0, k2, cluster.labels_, cl_fun,
                                  positional_arguments, keyword_arguments)
+
+    def test_exact_linkage(self):
+        """
+        Edge test to ensure incorrect linkages yield ValueErrors
+        """
+        x = np.array([[5, 3],
+                      [10, 15],
+                      [15, 12],
+                      [24, 10],
+                      [30, 30],
+                      [85, 70],
+                      [71, 80],
+                      [60, 78],
+                      [70, 55],
+                      [80, 91], ])
+        k=2
+        k1 = 0
+        k2 = 1
+        cluster = AgglomerativeClustering(n_clusters=k, affinity='euclidean',
+                                          linkage='average')
+        cluster.fit_predict(x)
+        test_hier_clusters_exact(x, k1, k2, cluster.labels_, "average")
+        with self.assertRaises(ValueError):
+            test_hier_clusters_exact(x, k1, k2, cluster.labels_, "complete")
+        with self.assertRaises(ValueError):
+            test_hier_clusters_exact(x, k1, k2, cluster.labels_, "hello")
+
+
+    def test_insig_cells_exact(self):
+        """
+        One shot test to see the wald test yield significant results for both
+        cell datasets.
+        :return: nothing so long as function yields same results as when
+        using R wald_test function:
+        """
+        insig_cell_data = np.genfromtxt(
+            'tests/data_for_tests/600tcells.csv',
+            delimiter=',',skip_header=1)
+        k = 3
+        positional_arguments = []
+        keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
+                             'linkage': 'ward'}
+        insigcluster = AgglomerativeClustering(*positional_arguments,
+                                          **keyword_arguments)
+        insigcluster.fit_predict(insig_cell_data)
+
+        # Using same siginv matrix as was used in R package (importing here
+        # instead of recalculating)
+        siginv1 = np.genfromtxt(
+            'tests/data_for_tests/SigInv1.csv',
+            delimiter=',', skip_header=1)
+
+        test_hier_clusters_exact(insig_cell_data,
+                                 cluster_labels=insigcluster.labels_,
+                                 link="ward", k1=1, k2=0,
+                                 iso=False, siginv=siginv1)
