@@ -74,7 +74,7 @@ def solve_one_ineq(a, b, c, tol=1e-10):
         return compute_linear_ineq_complement(b, c, tol)
 
     # we know a != 0
-    discrim = (b^2) - (4*a*c)
+    discrim = (b**2) - (4*a*c)
 
     # no roots or one root?
     if discrim <= tol:
