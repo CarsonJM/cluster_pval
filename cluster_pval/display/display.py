@@ -25,13 +25,12 @@ def cluster_plot(clustered_df):
     # perform PCA and reduce data to two dimensions
     pca_2 = PCA(n_components=2)
     principal_components = pca_2.fit_transform(clustered_df)
-    principal_df = pd.DataFrame(data=principal_components,
-                                columns=['first principal component', 'second principal component'])
+    principal_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
 
     # plot data in scatterplot
     clustered_df = clustered_df.sort_values(['cluster'], ascending=True)
     clustered_df['cluster'] = clustered_df['cluster'].astype(str)
-    fig = px.scatter(x=principal_df[:, 0], y=principal_df[:, 1], color=clustered_df['cluster'],
+    fig = px.scatter(x=principal_df['PC1'], y=principal_df['PC2'], color=clustered_df['cluster'],
                      labels={'x': "First Principal Component", 'y': "Second Principal Component", 'color': "Cluster"},
                      title="Scatter plot of clustered cells",
                      template="simple_white")
