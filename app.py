@@ -84,6 +84,11 @@ def parse_contents(contents, filename):
                 io.StringIO(decoded.decode('utf-8')))
             clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.hierarchical_clustering(df, 3)
             fig = display.cluster_plot(df, clustered_df)
+
+            for i in list(set(clustered_df['cluster'])):
+                for j in list(set(clustered_df['cluster'])):
+                    pval_module.wald_test(clustered_df, i, j,)
+            pval_module.stattest_clusters_approx(clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments)
         elif 'csv' not in filename:
             raise TypeError
             
