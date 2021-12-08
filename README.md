@@ -28,7 +28,7 @@ cluster_pval
 │   ├── cluster_module
 │   │   ├── __init__.py
 │   │   └── cluster_function.py
-│   ├── display
+│   ├── display_module
 │   │   ├── __init__.py
 │   │   └── display.py
 │   ├── pval_module
