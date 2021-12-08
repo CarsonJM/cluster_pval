@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
 import plotly.express as px
-from display.display import cluster_plot
+from display_module.display import cluster_plot
 
 class PlotFunctionTest(unittest.TestCase):
     """Tests for cluster_plot function"""
