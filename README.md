@@ -142,10 +142,6 @@ stat, pval, stderr = stattest_clusters_approx(x, k1, k2, cluster.labels_,
 wald_test(x, k1, k2, cluster.labels_)
 ```
 
-Graph output:
-(https://user-images.githubusercontent.com/91644573/145460061-5d2528bc-6e45-4dcf-a6ba-e2e8af775769.png)
-
-
 ## Contributing
 Project completed by S. Jannetty, C. Miller, A. Mounsey, S. Pollack & L. Droog. 
 
