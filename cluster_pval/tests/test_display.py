@@ -1,11 +1,9 @@
 """
-Tests for functions in display module
+Tests for plotting function in display module
 """
 import unittest
 import pandas as pd
 import numpy as np
-# from sklearn.decomposition import PCA
-# import plotly.express as px
 from display_module.display import cluster_plot
 
 class PlotFunctionTest(unittest.TestCase):

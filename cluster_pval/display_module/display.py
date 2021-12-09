@@ -4,8 +4,6 @@ principal component analysis
 """
 import pandas as pd
 from sklearn.decomposition import PCA
-# from cluster_pval import pval_module
-# from cluster_pval import cluster_module
 import plotly.express as px
 
 
@@ -36,3 +34,6 @@ def cluster_plot(clustered_df):
                      template="simple_white")
 
     return fig
+
+
+

@@ -1,12 +1,17 @@
 [![Build Status](https://app.travis-ci.com/Cluster-Club/Cluster_PVal.svg?branch=master)](https://app.travis-ci.com/Cluster-Club/Cluster_PVal)
 
+
+# [Open the webapp here!](https://cluster-pval.herokuapp.com/)
+
+![Logo image](doc/images_for_Readme/pea_logo.png)
+
 # cluster_pval
 
 Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error
 
 This tool calculates the difference in means between RNAseq clusters and reports the p-value calculated using the wald test and the method proposed in L. Gao, J. Bien & D. Witten [2021]. Users upload scRNAseq datasets and input metadata about the datasets. The tool then uses hierarchical clustering to assign each cell to a cluster and calculates both p values for the difference in means between each cluster pair.
 
-Envisioned users include Users researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and datascientists who may want to calculate adjusted p values for other types of data.
+Envisioned users include researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and data scientists who may want to calculate adjusted p values for other types of data.
 
 
 ## Installation and Requirements
@@ -19,40 +24,53 @@ scipy, umap-learn, and plotly.
 
 ```bash
 
-cluster_pval
-├── LICENSE
-├── README.md
 ├── app.py
 ├── cluster_pval
-│   ├── __init__.py
 │   ├── cluster_module
+│   │   ├── cluster_function.py
 │   │   ├── __init__.py
-│   │   └── cluster_function.py
+│   ├── data_module
+│   │   ├── data_module.py
+│   │   └── __init__.py
 │   ├── display_module
+│   │   ├── display.py
 │   │   ├── __init__.py
-│   │   └── display.py
+│   ├── helper_module
+│   │   ├── helper_functions.py
+│   │   ├── __init__.py
+│   ├── __init__.py
 │   ├── pval_module
 │   │   ├── __init__.py
-│   │   └── stattests.py
+│   │   ├── stattests.py
+│   │   └── trunc_sets.py
 │   └── tests
-│       ├── __init__.py
 │       ├── data_for_tests
 │       │   ├── 200tcells_200bcells_200memorycells.csv
 │       │   ├── 600tcells.csv
 │       │   ├── GSE158761_matrix.mtx.gz
-│       │   ├── SigInv1.csv
 │       │   ├── out.csv
 │       │   ├── penguin_data_subset.txt
-│       │   └── penguin_data_subset_with_species.txt
+│       │   ├── penguin_data_subset_with_species.csv
+│       │   ├── penguin_data_subset_with_species.txt
+│       │   └── SigInv1.csv
+│       ├── data_module_test.py
+│       ├── __init__.py
 │       ├── test_cluster_module.py
 │       ├── test_display.py
 │       └── test_pvalmod.py
 ├── doc
 │   ├── Component_Diagram.png
-│   ├── USER_STORIES.md
+│   ├── images_for_Readme
+│   │   ├── GUI_Home_Page.PNG
+│   │   └── Open_File_Navigator.PNG
 │   ├── USE_CASES.md
-│   └── images_for_README
-└── environment.yml
+│   └── USER_STORIES.md
+├── environment.yml
+├── LICENSE
+├── Procfile
+├── README.md
+└── requirements.txt
+
 ```
 
 Base Directory: Contains files related to git, travis (for continuous 
@@ -69,10 +87,11 @@ component diagram in doc folder. Contains the following folders:
 
 cluster_module: contains module responsible for clustering data
 
-data_format: contains module responsible for formatting input data
+data_module: contains module responsible for formatting input data
 
-display: contains module responsible for displaying clustered data and p 
-value after p value calculation
+display_module: contains module responsible for plotting clustered data
+
+helper_module: contains module containing functions used in app.py
 
 pval_module: contains module responsible for calculating wald and adjusted p 
 values
