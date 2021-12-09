@@ -1,2 +1,10 @@
 ## Documentation Describing Structure and Intended Use Cases for pval_cluster
-Here we will describe each of the files in this folder
+**Component_Diagram.png** - Schematic describing overall structure and 
+workflow of p_val cluster app.
+
+**USE_CASES.md** - Use cases envisioned when designing software.
+
+**USER_STORIES.md** - Users envisioned when designing software.
+
+**images_for_README** - Directory containing screen shot images used in "Usage" 
+section of main software README and team logo.
