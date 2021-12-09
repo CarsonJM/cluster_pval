@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.cluster import AgglomerativeClustering, KMeans
 
 
-def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
+def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method, linkage_method='ward'):
     """
     Function to cluster data hierarchically
     
@@ -47,7 +47,7 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
         pass
     
     if cluster_method == "Hierarchical":
-        cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
+        cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage=linkage_method)
         dataset['cluster'] = cluster.fit_predict(dataset)
         ccl_fun = AgglomerativeClustering 
         
