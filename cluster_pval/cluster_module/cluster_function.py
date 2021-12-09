@@ -45,7 +45,7 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
     else:
         pass
     
-    if cluster_method == "hierarchical":
+    if cluster_method == "Hierarchical":
         cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
         dataset['cluster'] = cluster.fit_predict(dataset)
         ccl_fun = AgglomerativeClustering 
