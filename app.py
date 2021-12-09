@@ -7,9 +7,9 @@ import io
 
 import dash
 from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
-import dash_table
+from dash import dcc
+from dash import html
+from dash import dash_table
 
 import pandas as pd
 import plotly.express as px
@@ -27,7 +27,7 @@ available_clustering_methods = ['Hierarchical']
 available_linkage_methods = ['ward', 'complete', 'average', 'single']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
+server = app.server
 app.config.suppress_callback_exceptions = True
 
 app.layout = html.Div([
