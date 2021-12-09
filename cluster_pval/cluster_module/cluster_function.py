@@ -50,8 +50,10 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
         cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
         dataset['cluster'] = cluster.fit_predict(dataset)
         ccl_fun = AgglomerativeClustering 
+        
     positional_arguments = []
     keyword_arguments = {'n_clusters': nr_of_clusters, 'affinity': 'euclidean','linkage': 'ward'}
+    
     return dataset, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments
 
 
