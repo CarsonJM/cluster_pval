@@ -16,7 +16,7 @@ import plotly.express as px
 
 from cluster_pval import pval_module
 from cluster_pval import cluster_module
-from cluster_pval import display
+from cluster_pval import display_module
 from cluster_pval import helper
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
