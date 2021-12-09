@@ -19,40 +19,53 @@ scipy, umap-learn, and plotly.
 
 ```bash
 
-cluster_pval
-├── LICENSE
-├── README.md
 ├── app.py
 ├── cluster_pval
-│   ├── __init__.py
 │   ├── cluster_module
+│   │   ├── cluster_function.py
 │   │   ├── __init__.py
-│   │   └── cluster_function.py
+│   ├── data_module
+│   │   ├── data_module.py
+│   │   └── __init__.py
 │   ├── display_module
+│   │   ├── display.py
 │   │   ├── __init__.py
-│   │   └── display.py
+│   ├── helper_module
+│   │   ├── helper_functions.py
+│   │   ├── __init__.py
+│   ├── __init__.py
 │   ├── pval_module
 │   │   ├── __init__.py
-│   │   └── stattests.py
+│   │   ├── stattests.py
+│   │   └── trunc_sets.py
 │   └── tests
-│       ├── __init__.py
 │       ├── data_for_tests
 │       │   ├── 200tcells_200bcells_200memorycells.csv
 │       │   ├── 600tcells.csv
 │       │   ├── GSE158761_matrix.mtx.gz
-│       │   ├── SigInv1.csv
 │       │   ├── out.csv
 │       │   ├── penguin_data_subset.txt
-│       │   └── penguin_data_subset_with_species.txt
+│       │   ├── penguin_data_subset_with_species.csv
+│       │   ├── penguin_data_subset_with_species.txt
+│       │   └── SigInv1.csv
+│       ├── data_module_test.py
+│       ├── __init__.py
 │       ├── test_cluster_module.py
 │       ├── test_display.py
 │       └── test_pvalmod.py
 ├── doc
 │   ├── Component_Diagram.png
-│   ├── USER_STORIES.md
+│   ├── images_for_Readme
+│   │   ├── GUI_Home_Page.PNG
+│   │   └── Open_File_Navigator.PNG
 │   ├── USE_CASES.md
-│   └── images_for_README
-└── environment.yml
+│   └── USER_STORIES.md
+├── environment.yml
+├── LICENSE
+├── Procfile
+├── README.md
+└── requirements.txt
+
 ```
 
 Base Directory: Contains files related to git, travis (for continuous 
@@ -73,6 +86,8 @@ data_format: contains module responsible for formatting input data
 
 display: contains module responsible for displaying clustered data and p 
 value after p value calculation
+
+Helper_module:contains module containing functions used in app.py
 
 pval_module: contains module responsible for calculating wald and adjusted p 
 values
