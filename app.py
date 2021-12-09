@@ -27,7 +27,7 @@ available_clustering_methods = ['Hierarchical']
 available_linkage_methods = ['ward', 'complete', 'average', 'single']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-
+server = app.server
 app.config.suppress_callback_exceptions = True
 
 app.layout = html.Div([
