@@ -17,6 +17,7 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
     Parameters:
     :param dataset: pandas dataframe dataset: dataframe with RNA seq data
     :param nr_of_clusters: integer nr_of_cluster: number of cluster that should be consdered
+    :cluster_method: string with name of cluster method
 
     Returns:
     pandas dataframe: input_dataframe (input dataframe with calculated cluster)
