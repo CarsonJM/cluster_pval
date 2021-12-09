@@ -87,7 +87,7 @@ data_format: contains module responsible for formatting input data
 display: contains module responsible for displaying clustered data and p 
 value after p value calculation
 
-Helper_module:contains module containing functions used in app.py
+Helper_module: contains module containing functions used in app.py
 
 pval_module: contains module responsible for calculating wald and adjusted p 
 values
