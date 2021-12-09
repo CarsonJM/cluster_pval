@@ -13,14 +13,25 @@ class ClusterModuleTest(unittest.TestCase):
     tests for knn function
     """
     @classmethod
-    def test_smoke(cls):
+    def test_smoke_hierarchical(cls):
         """
-        tests if function gives a result
+        tests if function gives a result for hierarchical clustering
         """
         data = np.array([[3, 1, 230],[6, 2, 745],[6, 6, 1080],[4, 3, 495],[2, 5, 260]])
         dataset=pd.DataFrame(data)
         nr_of_clusters = 3
-        hierarchical_clustering(dataset, nr_of_clusters)
+        hierarchical_clustering(dataset, nr_of_clusters, "hierarchical")
+        return
+    
+    @classmethod
+    def test_smoke_Kmeans(cls):
+        """
+        tests if function gives a result for Kmeans clustering
+        """
+        data = np.array([[3, 1, 230],[6, 2, 745],[6, 6, 1080],[4, 3, 495],[2, 5, 260]])
+        dataset=pd.DataFrame(data)
+        nr_of_clusters = 3
+        hierarchical_clustering(dataset, nr_of_clusters, "KMeans")
         return
 
 
@@ -31,7 +42,7 @@ class ClusterModuleTest(unittest.TestCase):
         data = np.array([[3, 1, 230],[6, 2, 745],[6, 6, 1080],[4, 3, 495],[2, 5, 260]])
         dataset=pd.DataFrame(data)
         nr_of_clusters = 3
-        result = hierarchical_clustering(dataset, nr_of_clusters)
+        result = hierarchical_clustering(dataset, nr_of_clusters, "hierarchical")
         self.assertIsInstance((result[0]), pd.DataFrame)
 
 
@@ -42,7 +53,7 @@ class ClusterModuleTest(unittest.TestCase):
         dataset = np.array([[3, 1, 230],[6, 2, 745],[6, 6, 1080],[4, 3, 495],[2, 5, 260]])
         nr_of_clusters = 3
         with self.assertRaises(ValueError):
-            hierarchical_clustering(dataset, nr_of_clusters)
+            hierarchical_clustering(dataset, nr_of_clusters, "hierarchical")
         return
 
 
@@ -54,5 +65,5 @@ class ClusterModuleTest(unittest.TestCase):
         dataset=pd.DataFrame(data)
         nr_of_clusters = 1.2
         with self.assertRaises(ValueError):
-            hierarchical_clustering(dataset, nr_of_clusters)
+            hierarchical_clustering(dataset, nr_of_clusters, "hierarchical")
         return
