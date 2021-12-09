@@ -17,7 +17,7 @@ import plotly.express as px
 from cluster_pval import pval_module
 from cluster_pval import cluster_module
 from cluster_pval import display_module
-from cluster_pval import helper
+from cluster_pval import helper_module
 
 from sklearn.cluster import AgglomerativeClustering
 
@@ -125,7 +125,7 @@ app.layout = html.Div([
 )
 def output_read_file_status(contents, filename):
      if contents is not None:
-        children = helper.read_file_status(filename)
+        children = helper_module.read_file_status(filename)
     
         return children
 
@@ -138,7 +138,7 @@ def output_read_file_status(contents, filename):
 )
 def output_preview_file(status, contents, filename):
      if status is not None:
-        children = helper.preview_file_and_num_clusters_and_cluster_methods(contents, filename)
+        children = helper_module.preview_file_and_num_clusters_and_cluster_methods(contents, filename)
     
         return children
 
@@ -150,7 +150,7 @@ def output_preview_file(status, contents, filename):
 )
 def output_linkage_and_cluster(num_clusters, cluster_method):
      if num_clusters is not None and cluster_method is not None:
-        children = helper.linkage(cluster_method)
+        children = helper_module.linkage(cluster_method)
     
         return children
 
@@ -167,7 +167,7 @@ def output_linkage_and_cluster(num_clusters, cluster_method):
 )
 def output_cluster_settings_and_submit(linkage_method, min_col, max_col, num_clusters, cluster_method, contents, filename):
      if contents is not None and num_clusters is not None and cluster_method is not None and linkage_method is not None:
-        children = helper.cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method)
+        children = helper_module.cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method)
     
         return children
 
@@ -220,7 +220,7 @@ def output_cluster_df(status, min_col, max_col, n_clicks, linkage_method, num_cl
 def output_cluster_figure(clustered_json):
     if clustered_json is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
-        children = helper.cluster_figure(clustered_df)
+        children = helper_module.cluster_figure(clustered_df)
     
         return children
 
@@ -247,7 +247,7 @@ def output_wald_status(clustered_figure, filename):
 def output_wald_df(status, clustered_json):
      if status is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
-        wald_df = helper.iterate_wald_test(clustered_df, clustered_df['cluster'], iso=True, sig=None, siginv=None)
+        wald_df = helper_module.iterate_wald_test(clustered_df, clustered_df['cluster'], iso=True, sig=None, siginv=None)
 
         return wald_df.to_json(orient='split')
 
@@ -305,7 +305,7 @@ def output_clusterpval_df(status, clustered_json, wald_json, linkage_method, num
         if cluster_method == 'Hierarchical':
             clfun=AgglomerativeClustering
 
-        clusterpval_df = helper.iterate_stattest_clusters_approx(wald_df, 0.05, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, ndraws=20)
+        clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, 0.05, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, ndraws=20)
 
         return clusterpval_df.to_json(orient='split')
 
