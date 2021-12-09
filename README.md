@@ -3,13 +3,15 @@
 
 [Open the webapp here!](https://cluster-pval.herokuapp.com/)
 
+![Logo image](doc/images_for_Readme/pea_logo.png)
+
 # cluster_pval
 
 Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error
 
 This tool calculates the difference in means between RNAseq clusters and reports the p-value calculated using the wald test and the method proposed in L. Gao, J. Bien & D. Witten [2021]. Users upload scRNAseq datasets and input metadata about the datasets. The tool then uses hierarchical clustering to assign each cell to a cluster and calculates both p values for the difference in means between each cluster pair.
 
-Envisioned users include Users researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and datascientists who may want to calculate adjusted p values for other types of data.
+Envisioned users include researchers that work with scRNAseq datasets, statisticians interested in the p value calculation methods, and data scientists who may want to calculate adjusted p values for other types of data.
 
 
 ## Installation and Requirements
@@ -85,12 +87,11 @@ component diagram in doc folder. Contains the following folders:
 
 cluster_module: contains module responsible for clustering data
 
-data_format: contains module responsible for formatting input data
+data_module: contains module responsible for formatting input data
 
-display: contains module responsible for displaying clustered data and p 
-value after p value calculation
+display_module: contains module responsible for plotting clustered data
 
-Helper_module: contains module containing functions used in app.py
+helper_module: contains module containing functions used in app.py
 
 pval_module: contains module responsible for calculating wald and adjusted p 
 values
