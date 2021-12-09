@@ -10,5 +10,8 @@ dependencies:
   - scikit-learn
   - scipy
   - dash
+  - dash-core-components
+  - dash-table
+  - dash-html-components
   - umap-learn
   - plotly
