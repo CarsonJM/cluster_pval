@@ -65,7 +65,6 @@ scipy, umap-learn, and plotly.
 │   │   └── Open_File_Navigator.PNG
 │   ├── USE_CASES.md
 │   └── USER_STORIES.md
-├── environment.yml
 ├── LICENSE
 ├── Procfile
 ├── README.md
