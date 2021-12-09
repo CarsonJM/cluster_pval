@@ -7,10 +7,10 @@ Cluster function for hierarchical clustering of a pandas dataset based on reques
 """
 
 import pandas as pd
-from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering, KMeans
 
 
-def hierarchical_clustering(dataset, nr_of_clusters):
+def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method):
     """
     Function to cluster data hierarchically
     
@@ -24,20 +24,31 @@ def hierarchical_clustering(dataset, nr_of_clusters):
     function: ccl_fun (used function)
     list: positional_arguments  
     dictionary: keyword_arguments
-   """
+    """
+    dataset = input_dataset
     check_value_type1 = isinstance(nr_of_clusters, int)
     if check_value_type1 is False:
         raise ValueError("The number of clusters should an integer.")
     else:
         pass
-    check_value_type2 = isinstance(dataset, pd.DataFrame)
+    
+    check_value_type2 = isinstance(input_dataset, pd.DataFrame)
     if check_value_type2 is False:
         raise ValueError("The dataset should be a pandas dataframe.")
     else:
         pass
-    cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
-    dataset['cluster'] = cluster.fit_predict(dataset)
-    ccl_fun = AgglomerativeClustering 
+    
+    if cluster_method == "KMeans":
+        cluster = KMeans(n_clusters=nr_of_clusters)
+        dataset['cluster'] = cluster.fit_predict(input_dataset)
+        ccl_fun = KMeans
+    else:
+        pass
+    
+    if cluster_method == "hierarchical":
+        cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage='ward')
+        dataset['cluster'] = cluster.fit_predict(dataset)
+        ccl_fun = AgglomerativeClustering 
     positional_arguments = []
     keyword_arguments = {'n_clusters': nr_of_clusters, 'affinity': 'euclidean','linkage': 'ward'}
     return dataset, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments
