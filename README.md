@@ -1,5 +1,7 @@
 [![Build Status](https://app.travis-ci.com/Cluster-Club/Cluster_PVal.svg?branch=master)](https://app.travis-ci.com/Cluster-Club/Cluster_PVal)
-Open the [Webapp](https://cluster-pval.herokuapp.com/) here!
+
+
+[Open the webapp here!](https://cluster-pval.herokuapp.com/)
 
 # cluster_pval
 
