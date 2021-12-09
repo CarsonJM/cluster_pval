@@ -1,7 +1,7 @@
 [![Build Status](https://app.travis-ci.com/Cluster-Club/Cluster_PVal.svg?branch=master)](https://app.travis-ci.com/Cluster-Club/Cluster_PVal)
 
 
-[Open the webapp here!](https://cluster-pval.herokuapp.com/)
+# [Open the webapp here!](https://cluster-pval.herokuapp.com/)
 
 ![Logo image](doc/images_for_Readme/pea_logo.png)
 
