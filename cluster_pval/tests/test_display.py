@@ -1,5 +1,5 @@
 """
-Tests for functions in display module
+Tests for plotting function in display module
 """
 import unittest
 import pandas as pd
