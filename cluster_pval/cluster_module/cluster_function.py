@@ -38,6 +38,12 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method, linka
         raise ValueError("The dataset should be a pandas dataframe.")
     else:
         pass
+
+    check_value_type3 = isinstance(cluster_method, str)
+    if check_value_type3 is False:
+        raise ValueError("The cluster method should be a string.")
+    else:
+        pass
     
     if cluster_method == "KMeans":
         cluster = KMeans(n_clusters=nr_of_clusters)
