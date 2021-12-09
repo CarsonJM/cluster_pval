@@ -189,7 +189,8 @@ def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
             html.Div([
                 html.H6('Data information:'),
                 html.Div(''),
-                html.Div(''),ive a preview of the uploaded dataset on the dashboard and request input of the user
+                html.Div(''), 
+                #give a preview of the uploaded dataset on the dashboard and request input of the user
                 "Input columns containing data to be clustered (first column should denoted with 0):",
                 html.Div([dcc.Input(id='min-col', type='number', min=0, step=1),
                 ' - ', dcc.Input(id='max-col', type='number', min=0, step=1)
