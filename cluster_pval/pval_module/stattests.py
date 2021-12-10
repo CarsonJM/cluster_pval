@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.cluster import AgglomerativeClustering
-from pval_module import trunc_sets
+from cluster_pval.pval_module import trunc_sets
 
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
