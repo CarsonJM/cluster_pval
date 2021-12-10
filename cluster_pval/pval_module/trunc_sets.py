@@ -85,10 +85,14 @@ def solve_one_ineq(a, b, c, tol=1e-10):
             # parabola opens down: inequality never satisfied
             return np.array([0, np.inf])
 
+
     # we now know that a != 0 and there are two roots
     sqrt_discrim = math.sqrt(discrim)
-    roots = np.sort(np.array([-b + sqrt_discrim, -b - sqrt_discrim])/(2*a))
-    print("roots = ".format(roots))
+    oneroot = -b + sqrt_discrim
+    tworoot = -b - sqrt_discrim
+    root_array = np.array([oneroot, tworoot])
+    root_array = root_array / (2 * a)
+    roots = np.array(sorted(root_array))
 
     # parabola opens up? (a > 0?)
     if a > tol:
@@ -160,7 +164,9 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
     rows, cols = x.shape
     n = rows
 
-    #NOTE HEIGHTS HERE IS DIFFERENT THAN IN R
+    # NOTE HEIGHTS HERE IS DIFFERENT THAN IN R, THIS IS BECAUSE WITH WARD IN R
+    # THEY SQUARED THEIR DISTANCE MATRIX BEFORE CLUSTERING, SKLEARN DOES NOT
+    # ALLOW WARD WITH PRECOMPUTED AFFINITY SO THERE IS A CLUNKY WORKAROUND LATER
     heights = hcl.distances_
 
     #NOTE MERGES HERE IS DIFFERENT THAN IN R
@@ -172,8 +178,8 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
     other_obs = np.setdiff1d(np.arange(0, n-1, 1),
                              np.concatenate((k1_obs, k2_obs), axis=1))
 
-    S_complement = np.array([-np.inf, 0])
-    list_index = 1
+    s_complement = np.array([[-np.inf, 0]])
+    print(s_complement)
 
     # where is each observation merged away?
     # if it is after the (n-K)th merge then that cluster still exists at step
@@ -195,6 +201,12 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
     c = c**2
     idx_to_nan = numpy.triu_indices(n, k=1)
     c[idx_to_nan] = np.NaN
+    condensed_distance_array = scipy.spatial.distance.pdist(x)
+    condensed_distance_array = condensed_distance_array ** 2
+    ward_linkage = scipy.cluster.hierarchy.linkage(condensed_distance_array,
+                                                   method='ward')
+    heights = ward_linkage[:,2]
+
 
     #compute quantities used in all coefficients
     prop_k2 = len(k2_obs[0])/(len(k1_obs[0]) + len(k2_obs[0]))
@@ -278,6 +290,15 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
             else:
                 new_intervals = solve_one_ineq(gencov_factor, b[j, i], c[j,i] \
                                                - current_height)
+
+            if new_intervals is not None:
+                print(new_intervals)
+                print(new_intervals)
+                s_complement = np.append(s_complement, [new_intervals], axis=0)
+
+    this_A <- squared_prop_k1*gencov_factor
+    for i in k1_obs:
+        pass
 
 
 def compute_s_mcquitty_gencov(x, hcl, k, k1, k2, stat):

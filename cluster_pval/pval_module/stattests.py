@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from sklearn.cluster import AgglomerativeClustering
-from cluster_pval import pval_module
+from pval_module import trunc_sets
 
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
@@ -179,35 +179,35 @@ def test_hier_clusters_exact(x, k1, k2, cluster_labels, link, iso=True,
     hcl.fit_predict(x)
     if iso:
         if link == 'single':
-            s = pval_module.trunc_sets.compute_s_single(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_single(x, hcl, k, k1, k2)
         if link == 'average':
-            s = pval_module.trunc_sets.compute_s_average(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_average(x, hcl, k, k1, k2)
         if link == 'centroid':
-            s = pval_module.trunc_sets.compute_s_centroid(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_centroid(x, hcl, k, k1, k2)
         if link == 'ward':
-            s = pval_module.trunc_sets.compute_s_ward(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_ward(x, hcl, k, k1, k2)
         if link == 'mcquitty':
-            s = pval_module.trunc_sets.compute_s_mcquitty(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_mcquitty(x, hcl, k, k1, k2)
         if link == 'median':
-            s = pval_module.trunc_sets.compute_s_median(x, hcl, k, k1, k2)
+            s = trunc_sets.compute_s_median(x, hcl, k, k1, k2)
     elif not iso:
         if link == 'single':
-            s = pval_module.trunc_sets.compute_s_single_gencov(x, hcl, k, k1,
+            s = trunc_sets.compute_s_single_gencov(x, hcl, k, k1,
                                                               k2, stat)
         if link == 'average':
-            s = pval_module.trunc_sets.compute_s_average_gencov(x, hcl, k, k1,
+            s = trunc_sets.compute_s_average_gencov(x, hcl, k, k1,
                                                                 k2,stat)
         if link == 'centroid':
-            s = pval_module.trunc_sets.compute_s_centroid_gencov(x, hcl, k, k1,
+            s = trunc_sets.compute_s_centroid_gencov(x, hcl, k, k1,
                                                                  k2,stat)
         if link == 'ward':
-            s = pval_module.trunc_sets.compute_s_ward_gencov(x, hcl, k, k1, k2,
+            s = trunc_sets.compute_s_ward_gencov(x, hcl, k, k1, k2,
                                                              stat)
         if link == 'mcquitty':
-            s = pval_module.trunc_sets.compute_s_mcquitty_gencov(x, hcl, k, k1,
+            s = trunc_sets.compute_s_mcquitty_gencov(x, hcl, k, k1,
                                                                  k2, stat)
         if link == 'median':
-            s = pval_module.trunc_sets.compute_s_median_gencov(x, hcl, k, k1,
+            s = trunc_sets.compute_s_median_gencov(x, hcl, k, k1,
                                                                k2, stat)
 
     # compute p-value using truncated chi-square distribution
