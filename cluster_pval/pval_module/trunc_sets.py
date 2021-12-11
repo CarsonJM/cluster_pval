@@ -75,9 +75,8 @@ def solve_one_ineq(a, b, c, tol=1e-10):
 
     # we know a != 0
     discrim = (b**2) - (4*a*c)
-
     # no roots or one root?
-    if discrim <= tol:
+    if discrim <= 0:
         if a > tol:
             # parabola opens up: inequality satisfied
             return
@@ -123,6 +122,7 @@ def compute_s_centroid(x, hcl, k, k1, k2):
     pass
 
 def compute_s_ward(x, hcl, k, k1, k2):
+
     pass
 
 def compute_s_mcquitty(x, hcl, k, k1, k2):
@@ -140,6 +140,7 @@ def compute_s_average_gencov(x, hcl, k, k1, k2, stat):
 def compute_s_centroid_gencov(x, hcl, k, k1, k2, stat):
     pass
 
+# UNFINISHED!!!!
 def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
     """ Computes conditioning set S for ward linkage hierarchical clustering
     without assuming isotropic covariance matrix
@@ -201,6 +202,8 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
     c = c**2
     idx_to_nan = numpy.triu_indices(n, k=1)
     c[idx_to_nan] = np.NaN
+
+    ## THIS IS SO THAT THE OUTPUT MATCHES WHATS HAPPENING IN R
     condensed_distance_array = scipy.spatial.distance.pdist(x)
     condensed_distance_array = condensed_distance_array ** 2
     ward_linkage = scipy.cluster.hierarchy.linkage(condensed_distance_array,
@@ -292,13 +295,73 @@ def compute_s_ward_gencov(x, hcl, k, k1, k2, stat):
                                                - current_height)
 
             if new_intervals is not None:
-                print(new_intervals)
-                print(new_intervals)
                 s_complement = np.append(s_complement, [new_intervals], axis=0)
 
-    this_A <- squared_prop_k1*gencov_factor
-    for i in k1_obs:
-        pass
+    this_A <- squared_prop_k2*gencov_factor
+    for i in k1_obs[0]:
+        hm1 = height_merge[i]
+        for j in other_obs:
+            hm2 = height_merge[j]
+            if hm1 < hm2:
+                upper_ij = hm1
+            else:
+                upper_ij = hm2
+
+            current_height = heights[upper_ij]
+
+            if i > j:
+                new_intervals = solve_one_ineq(this_A, b[i, j], c[i,
+                                                                  j] -  current_height)
+            else:
+                new_intervals = solve_one_ineq(this_A, b[j, i], c[j,
+                                                                  i] - current_height)
+
+            if new_intervals is not None:
+                s_complement = np.append(s_complement, [new_intervals], axis=0)
+
+    this_A = squared_prop_k1*gencov_factor
+    for i in k2_obs[0]:
+        hm1 = height_merge[i]
+        for j in other_obs:
+            hm2 = height_merge[j]
+            upper_ij = max(hm1, hm2)
+            current_height = heights[upper_ij]
+
+            if i > j:
+                new_intervals = solve_one_ineq(this_A, b[i, j], c[i, j] - current_height)
+            else:
+                new_intervals = solve_one_ineq(this_A, b[j, i], c[j, i], - current_height)
+
+            if new_intervals is not None:
+                s_complement = np.append(s_complement, [new_intervals], axis=0)
+
+    for step in range (n-k-1):
+        # Which clusters merged in this step?
+        minimal_clusters = merges[step, ]
+        #print(minimal_clusters)
+        for i in range(len(minimal_clusters)):
+            if minimal_clusters[i] >= n:
+                print(minimal_clusters[i])
+                minimal_clusters[i] = merged_to_index[minimal_clusters[i]]
+            else:
+                minimal_clusters[i] = minimal_clusters[i]
+        print(minimal_clusters)
+        # Merge them to create the (step+1)th clustering
+        min_cluster_1 = min(minimal_clusters)
+        min_cluster_2 = max(minimal_clusters)
+
+        merged_to_index[step] = min_cluster_1
+
+        # Update last step where each cluster exists. If it's merged away
+        # before n-K then that's the step. If it's merged away after n-K,
+        # or if it's never merged away, then it should be n-K
+        height_merge[min_cluster_2] = -1
+        match_merge_row = np.where(merges == step)
+        print(match_merge_row)
+
+    #THIS IS UNFINISHED BUT I'M GOING TO SWITCH TO A DIFFERENT FUNCTION
+    # BECAUSE THIS IS MAKING ME VERY FRUSTRATED FOR THE LOVE OF GOD REFACTOR
+    # THIS R CODE
 
 
 def compute_s_mcquitty_gencov(x, hcl, k, k1, k2, stat):
@@ -306,3 +369,100 @@ def compute_s_mcquitty_gencov(x, hcl, k, k1, k2, stat):
 
 def compute_s_median_gencov(x, hcl, k, k1, k2, stat):
     pass
+
+
+def test_hier_clusters_exact(x, k1, k2, cluster_labels, link, iso=True,
+                             sig=None, siginv=None):
+    """Exact significance test for hierarchical clustering
+    This tests the null hypothesis of no difference in means between clusters
+    k1 and k2. To account for the fact that the clusters have been estimated
+    from the data, the p-values are computed conditional on the fact that
+    those clusters were estimated. This function computes p-values exactly
+    via an analytic characterization of the conditioning set.
+
+    Currently, this function supports squared Euclidean distance as a measure
+    of dissimilarity between observations, and the following six linkages:
+    single, average, centroid, Ward, McQuitty (aka WPGMA), and median (aka
+    WPGMC)
+
+    By default this function assumes the covariance matrix of the features is
+    isotropic.
+
+    :param x: n by q matrix (np.array), containing numeric data
+    :param k1: integer, selects a cluster to test
+    :param k2: integer, selects a cluster to test
+    :param cluster_labels: numpy.ndarray, labels of each point (row) in X
+    :param link: string selecting linkage. Supported options are "single",
+    "average", "centroid", "ward", "median", and "mcquitty"
+    :param iso: boolean, if True isotropic covariance matrix model, otherwise
+    not
+    :param sig: optional scalar specifying sigma,  relevant if iso is True
+    :param siginv: optional matrix specifying Sigma^-1, relevant if
+    iso == False
+    """
+
+    check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv)
+
+    if link == "complete":
+        raise ValueError("test_hier_clusters_exact does not support complete "
+                         "linkage")
+    link_options = ["single", "average", "centroid", "ward", "median",
+                    "mcquitty"]
+    if link not in link_options:
+        raise ValueError("Unsupported link provided. Link options are "
+                         "'single', 'average', 'centroid', 'ward.D', 'median',\
+                         and 'mcquitty'")
+
+    #temporary message while package is incomplete
+    if link not in ["average", "ward"]:
+        raise ValueError("test_hier_clusters_exact is a work in progress! The "
+                         "only linkage methods currently supported are "
+                         "'average' and 'ward'. Check back soon for new "
+                         "updates!")
+
+    rows, cols = x.shape
+    q = cols
+
+    stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
+                                                         cluster_labels, iso,
+                                                         sig, siginv)
+
+    unique, counts = np.unique(cluster_labels, return_counts=True)
+    k = len(unique)
+    hcl = AgglomerativeClustering(n_clusters=k, affinity='euclidean',
+                                      linkage=link, compute_distances=True)
+    hcl.fit_predict(x)
+    if iso:
+        if link == 'single':
+            s = trunc_sets.compute_s_single(x, hcl, k, k1, k2)
+        if link == 'average':
+            s = trunc_sets.compute_s_average(x, hcl, k, k1, k2)
+        if link == 'centroid':
+            s = trunc_sets.compute_s_centroid(x, hcl, k, k1, k2)
+        if link == 'ward':
+            s = trunc_sets.compute_s_ward(x, hcl, k, k1, k2)
+        if link == 'mcquitty':
+            s = trunc_sets.compute_s_mcquitty(x, hcl, k, k1, k2)
+        if link == 'median':
+            s = trunc_sets.compute_s_median(x, hcl, k, k1, k2)
+    elif not iso:
+        if link == 'single':
+            s = trunc_sets.compute_s_single_gencov(x, hcl, k, k1,
+                                                              k2, stat)
+        if link == 'average':
+            s = trunc_sets.compute_s_average_gencov(x, hcl, k, k1,
+                                                                k2,stat)
+        if link == 'centroid':
+            s = trunc_sets.compute_s_centroid_gencov(x, hcl, k, k1,
+                                                                 k2,stat)
+        if link == 'ward':
+            s = trunc_sets.compute_s_ward_gencov(x, hcl, k, k1, k2,
+                                                             stat)
+        if link == 'mcquitty':
+            s = trunc_sets.compute_s_mcquitty_gencov(x, hcl, k, k1,
+                                                                 k2, stat)
+        if link == 'median':
+            s = trunc_sets.compute_s_median_gencov(x, hcl, k, k1,
+                                                               k2, stat)
+
+    # compute p-value using truncated chi-square distribution

@@ -20,9 +20,6 @@ import scipy.stats
 import numpy as np
 import pandas as pd
 
-from sklearn.cluster import AgglomerativeClustering
-from pval_module import trunc_sets
-
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
     Checks to make sure parameters given to pvalue functions are formatted
@@ -117,104 +114,23 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     if k1 < 0 or k1 > (k-1) or k2 < 0 or k2 > (k-1):
         raise ValueError("k1 and k2 must be between 0 and k-1")
 
-def test_hier_clusters_exact(x, k1, k2, cluster_labels, link, iso=True,
-                             sig=None, siginv=None):
-    """Exact significance test for hierarchical clustering
-    This tests the null hypothesis of no difference in means between clusters
-    k1 and k2. To account for the fact that the clusters have been estimated
-    from the data, the p-values are computed conditional on the fact that
-    those clusters were estimated. This function computes p-values exactly
-    via an analytic characterization of the conditioning set.
 
-    Currently, this function supports squared Euclidean distance as a measure
-    of dissimilarity between observations, and the following six linkages:
-    single, average, centroid, Ward, McQuitty (aka WPGMA), and median (aka
-    WPGMC)
-
-    By default this function assumes the covariance matrix of the features is
-    isotropic.
-
-    :param x: n by q matrix (np.array), containing numeric data
-    :param k1: integer, selects a cluster to test
-    :param k2: integer, selects a cluster to test
-    :param cluster_labels: numpy.ndarray, labels of each point (row) in X
-    :param link: string selecting linkage. Supported options are "single",
-    "average", "centroid", "ward", "median", and "mcquitty"
-    :param iso: boolean, if True isotropic covariance matrix model, otherwise
-    not
-    :param sig: optional scalar specifying sigma,  relevant if iso is True
-    :param siginv: optional matrix specifying Sigma^-1, relevant if
-    iso == False
-    """
-
-    check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv)
-    if link == "complete":
-        raise ValueError("test_hier_clusters_exact does not support complete "
-                         "linkage")
-    link_options = ["single", "average", "centroid", "ward", "median",
-                    "mcquitty"]
-    if link not in link_options:
-        raise ValueError("Unsupported link provided. Link options are "
-                         "'single', 'average', 'centroid', 'ward.D', 'median',\
-                         and 'mcquitty'")
-
-    #temporary message while package is incomplete
-    if link not in ["average", "ward"]:
-        raise ValueError("test_hier_clusters_exact is a work in progress! The "
-                         "only linkage methods currently supported are "
-                         "'average' and 'ward'. Check back soon for new "
-                         "updates!")
-
-    rows, cols = x.shape
-    q = cols
-
-    stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
-                                                         cluster_labels, iso,
-                                                         sig, siginv)
-
-    unique, counts = np.unique(cluster_labels, return_counts=True)
-    k = len(unique)
-    hcl = AgglomerativeClustering(n_clusters=k, affinity='euclidean',
-                                      linkage=link, compute_distances=True)
-    hcl.fit_predict(x)
-    if iso:
-        if link == 'single':
-            s = trunc_sets.compute_s_single(x, hcl, k, k1, k2)
-        if link == 'average':
-            s = trunc_sets.compute_s_average(x, hcl, k, k1, k2)
-        if link == 'centroid':
-            s = trunc_sets.compute_s_centroid(x, hcl, k, k1, k2)
-        if link == 'ward':
-            s = trunc_sets.compute_s_ward(x, hcl, k, k1, k2)
-        if link == 'mcquitty':
-            s = trunc_sets.compute_s_mcquitty(x, hcl, k, k1, k2)
-        if link == 'median':
-            s = trunc_sets.compute_s_median(x, hcl, k, k1, k2)
-    elif not iso:
-        if link == 'single':
-            s = trunc_sets.compute_s_single_gencov(x, hcl, k, k1,
-                                                              k2, stat)
-        if link == 'average':
-            s = trunc_sets.compute_s_average_gencov(x, hcl, k, k1,
-                                                                k2,stat)
-        if link == 'centroid':
-            s = trunc_sets.compute_s_centroid_gencov(x, hcl, k, k1,
-                                                                 k2,stat)
-        if link == 'ward':
-            s = trunc_sets.compute_s_ward_gencov(x, hcl, k, k1, k2,
-                                                             stat)
-        if link == 'mcquitty':
-            s = trunc_sets.compute_s_mcquitty_gencov(x, hcl, k, k1,
-                                                                 k2, stat)
-        if link == 'median':
-            s = trunc_sets.compute_s_median_gencov(x, hcl, k, k1,
-                                                               k2, stat)
-
-    # compute p-value using truncated chi-square distribution
-
-
-
-
+def calculate_log_gamma_function(q):
+    if q/2 <= 0:
+        raise ValueError("Your dataset somehow has a negative number of "
+                         "columns. Something has gone horribly wrong.")
+    #q/2 will always be a positive number
+    if scipy.special.gamma(q/2) != np.inf:
+        return math.log(scipy.special.gamma(q/2))
+    else:
+        if q % 2 != 0:
+            raise ValueError("Datasets with this many dimensions must have even "
+                             "number of cols")
+        nums_to_sum = []
+        for i in range(1, int(math.floor(q/2))):
+            nums_to_sum.append(math.log(i))
+        total = sum(nums_to_sum)
+        return total
 
 
 def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
@@ -295,7 +211,9 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
             first_term = -((phi[j]/scale_factor)**2)/2
             second_term = (q-1)*math.log(phi[j]/scale_factor)
             third_term = (q/2 -1)*math.log(2)
-            fourth_term = scipy.special.gamma(q/2)
+            #print("third term: {}".format(third_term))
+            fourth_term = calculate_log_gamma_function(q)
+            #print("fourth term: {}".format(fourth_term))
             fifth_term = math.log(scale_factor)
             sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
             log_survives[j] = (first_term + second_term - third_term - fourth_term - fifth_term - sixth_term)
