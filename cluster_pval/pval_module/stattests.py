@@ -20,6 +20,12 @@ import scipy.stats
 import numpy as np
 import pandas as pd
 
+<<<<<<< HEAD
+=======
+from sklearn.cluster import AgglomerativeClustering
+from cluster_pval.pval_module import trunc_sets
+
+>>>>>>> 099056b517547d01252d25ad1247e2d4d42a83ac
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
     Checks to make sure parameters given to pvalue functions are formatted

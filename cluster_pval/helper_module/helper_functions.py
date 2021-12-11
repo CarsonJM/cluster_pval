@@ -1,13 +1,32 @@
 """
-Common
-=======
-This module serves as a storage location for functions that are used by the app.py dashboard.
+Dashboard helper
+================
+This module serves as a storage location for functions that are used
+to generate dashboard outputs for each callback
 
 Functions
 ---------
-iterate_wald_test: 
+read_file_status: returns html object with read file status
 
-iterate_stattest_clusters_approx: 
+file_preview_req_num_clusters_req_cluster_method: returns preview of the uploaded file, 
+and requests number of clusters/clustering method
+
+req_linkage_method: requests user to input a linkage method
+
+cluster_settings_req_submit: displays input cluster settings and request final submission
+
+cluster_figure: returns interactive clustered figure
+
+req_threshold_req_num_draws: requests input of significance threshold and number of draws (if applicable)
+
+wald_preview_clusterpval_status: returns preview of wald table, and displays cluster status
+
+iterate_wald_test: iterates wald test over each pairwise cluster comparison
+
+iterate_stattest_clusters_approx: iterates adjusted p-value test over each significant 
+pairwise cluster comparison (determined via wald)
+
+
 """
 import base64
 import io
@@ -23,99 +42,20 @@ from dash import dcc
 from dash import html
 from dash import dash_table
 
-
-
-available_clustering_methods = ['Hierarchical']
+# lists with clustering and linkage methods
+available_clustering_methods = ['hierarchical', 'k-means']
 available_linkage_methods = ['ward', 'complete', 'average', 'single']
-
-def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
-    """
-    Function to perform the wald test
-    
-    Parameters:
-    :param x: pandas dataframe, dataframe with RNA seq data
-    :param cluster_labels: pandas series, serie with cluster labels
-    :param iso: boolean, if True isotrophic covariance matrix model,
-     otherwise not
-    :param sig: optional scalar specifying sigma,  must be float or int
-    :param siginv: optional matrix specifying Sigma^-1, must be either None
-    or np.ndarray with dimensions qxq
-
-    Returns:
-    pandas dataframe: pvalue dataframe, 
-    """
-    comparison_list = []
-    wald_pvalue_list = []
-
-    x_np = x.to_numpy()
-    cluster_labels_np = cluster_labels.to_numpy()
-
-    for k1 in range(len(set(cluster_labels))):
-         for k2 in range(k1+1, len(set(cluster_labels))):
-            comparison_list.append(str(k1) + ',' + str(k2))
-            stat, wald_pvalue = pval_module.wald_test(x_np, k1, k2, cluster_labels_np, iso=iso, sig=sig, siginv=siginv)
-            wald_pvalue_list.append(wald_pvalue)
-            
-    pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'wald_pvalue':wald_pvalue_list})
-
-    return pvalue_df
-
-def iterate_stattest_clusters_approx(wald_pvalue_df, sig_threshold, x, cluster_labels, cl_fun, positional_arguments, keyword_arguments, iso, sig, siginv, ndraws):
-    """
-    Function to recalculate the significant pvalues obtained from the wald test to calculate the adjusted pvalue
-    
-    Parameters:
-    :param wald_pvalue_df: pandas dataframe with pvalues from Wald test
-    :param sig_threshold: float, threshold that determine significance
-    :param x: pandas dataframe, dataframe with RNA seq data
-    :param cluster_labels: pandas series, serie with cluster labels
-    :param cl_fun: function used to cluster data in clustering module
-    :param positional_arguments: list of positional arguments used by cl_fun
-    :param keyword_arguments: dict of keyword argument key:value pairs used by
-    cl_fun
-    :param iso: boolean, if True isotropic covariance matrix model, otherwise
-    not
-    :param sig: optional scalar specifying sigma,  relevant if iso is True
-    :param siginv: optional matrix specifying Sigma^-1, relevant if
-    iso == False
-    :param ndraws: integer, selects the number of importance samples, default
-    of 2000
-    
-    Returns:
-    pandas dataframe: combined pvalue dataframe
-    """
-    comparison_list = []
-    cluster_pvalue_list = []
-
-    x_np = x.to_numpy()
-    cluster_labels_np = cluster_labels.to_numpy()
-
-    wald_pvalue_sig = wald_pvalue_df[wald_pvalue_df['wald_pvalue'] < sig_threshold]
-    sig_comparisons = wald_pvalue_sig['comparisons'].tolist()
-
-    for i in sig_comparisons:
-        comparison_list.append(i)
-        k1, k2 = i.split(',')
-        stat, cluster_pvalue, stderr = pval_module.stattest_clusters_approx(x_np, int(k1), int(k2), cluster_labels_np, cl_fun, positional_arguments, keyword_arguments, iso=True, sig=None, siginv=None, ndraws=ndraws)
-        
-        cluster_pvalue_list.append(cluster_pvalue)
-
-    cluster_pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'cluster_pvalue':cluster_pvalue_list})
-
-    combined_pvalue_df = wald_pvalue_df.merge(cluster_pvalue_df, how='left', on='comparisons')
-
-    return combined_pvalue_df
 
 # output-read-file-status (determine if file is csv, and return status)
 def read_file_status(filename):
     """
-    Function to upload the CSV file
+    Function to return the status of the CSV upload
     
     Parameters:
     :param filename: string with pathway and name of file
     
     returns:
-    string: reading file status
+    string: reading file status with filename
     """
     if 'csv' in filename:
         return html.Div([
@@ -136,7 +76,7 @@ def read_file_status(filename):
         )
 
 # once file is loaded, return preview, and return input for number of clusters
-def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
+def file_preview_req_num_clusters_req_cluster_method(orientation, contents, filename):
     """
     Function to give a preview of the uploaded dataset on the dashboard and request input of the user
     
@@ -145,7 +85,7 @@ def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
     :param filename: string the name of file
     
     returns:
-    preview of data
+    preview of data, request for data info, request number of clusters, and request clustering method 
     """    
     content_type, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
@@ -153,6 +93,10 @@ def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
     if 'csv' in filename:
         try:
             df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+            if orientation == 'columns':
+                df = df.transpose()
+            else:
+                pass
             
     # return exception if file is not read
         except Exception as e:
@@ -173,7 +117,7 @@ def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
             # return a preview of the file showing first 10 lines
             dash_table.DataTable(
                 data=df.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in df.columns],
+                columns=[{'name': i, 'id': i} for i in df.columns] if orientation =='rows' else [{'name': str(i), 'id': str(i)} for i in df.columns],
                 page_size=10,
                 style_table={'overflowX': 'auto'},
                 style_cell={
@@ -225,16 +169,18 @@ def preview_file_and_num_clusters_and_cluster_methods(contents, filename):
         ])
 
 # once number of clusters and method has been selected, return linkage method and/or cluster button
-def linkage(cluster_method):
+def req_linkage_method(num_cluisters, cluster_method):
     """
-    Function to ask for a linkage approach
+    Function to ask user for a linkage method
     
     Parameters:
-    :param contents: CSV file with content of input data
-    :param filename: string the name of file
+    :param num_clusters: number of clusters input by user
+    :param cluster_method: cluster method selected by user
     
+    returns a request for user to input linkage method, or proceeds to next step if
+    k-means cluster method was selected
     """    
-    if cluster_method == 'Hierarchical':
+    if cluster_method == 'hierarchical':
         # objects to return after reading the file
         return html.Div([
             html.H6('Linkage method:'),
@@ -257,7 +203,7 @@ def linkage(cluster_method):
         ])
 
 # once linkage has been seleceted and/or button has been pressed, return clustering status
-def cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method):
+def cluster_settings_req_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method):
     """
     Function to determine cluster settings and submit clustering
     
@@ -268,8 +214,11 @@ def cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluste
     :param num_clusters: integer with the number of desired number of clusters
     :param cluster_methods: string with the name of the cluster method
     :param linkage_method: string with the name of the linkage method
+
+    returns a preview of user selected clustering settings, and a button for submitting
+    the clustering job
     """    
-    if cluster_method == 'Hierarchical':
+    if cluster_method == 'hierarchical':
         # return clustering status
         return html.Div([
             html.H6('Clustering summary:'),
@@ -284,9 +233,27 @@ def cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluste
             html.Hr(),
 
             # button to submit clustering
-            html.Button(id='cluster-button', children='Press to submit clustering'),
+            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering'),
 
             html.Hr(),
+        ])
+
+    else:
+        return html.Div([
+            html.H6('Clustering summary:'),
+            html.Div(''),
+            html.Div(''),
+            html.Div(['Clustering file: ', filename, '\n']),
+            html.Div(['Columns to be clustered: ', min_col, ' - ', max_col]),
+            html.Div(['Number of clusters: ', num_clusters, '\n']),
+            html.Div(['Clustering method: ', cluster_method, '\n']),
+
+            html.Hr(),
+
+            # button to submit clustering
+            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering'),
+
+            html.Hr()
         ])
 
 # once the options have been selected and button is pressed, cluster the data, and display cluster graph
@@ -314,3 +281,252 @@ def cluster_figure(clustered_df):
 
         html.Hr()
         ])
+
+# once figure has been displayed, request threshold and num draws if applicable
+def req_threshold_req_num_draws(clustered_figure, cluster_method, linkage_method):
+    if linkage_method == 'ward' or linkage_method == 'average':
+        return html.Div([
+            html.H6('P-value calculation information:'),
+            html.Div(''),
+            html.Div(''), 
+
+            "Input p-value significance threshold: ",
+            dcc.Input(id='sig-threshold', type='number', min=0, max=1),
+
+            dcc.Input(id='num-draws', value=20, type='hidden'),
+
+            html.Hr(),
+
+            html.Button(id='p-value-button', n_clicks=0, children='Press to submit p-value calculation'),
+
+            html.Hr()
+        ])
+    else:
+        return html.Div([
+            html.H6('P-value calculation information:'),
+            html.Div(''),
+            html.Div(''), 
+
+            "Input p-value significance threshold: ",
+            dcc.Input(id='sig-threshold', type='number', min=0, max=1),
+
+            html.Br(),
+            html.Br(),
+
+            "Input number of draws to be used in calculating adjusted p-value: ",
+            dcc.Input(id='num-draws', type='number', min=0),
+
+            html.Hr(),
+
+            html.Button(id='p-value-button', n_clicks=0, children='Press to submit p-value calculation'),
+
+            html.Hr()
+        ])
+
+# function to iterate wald test over each comparison
+def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
+    """
+    Function to iterate the wald test over each comparison
+    
+    Parameters:
+    :param x: pandas dataframe, dataframe with RNA seq data
+    :param cluster_labels: pandas series, serie with cluster labels
+    :param iso: boolean, if True isotrophic covariance matrix model,
+     otherwise not
+    :param sig: optional scalar specifying sigma,  must be float or int
+    :param siginv: optional matrix specifying Sigma^-1, must be either None
+    or np.ndarray with dimensions qxq
+
+    Returns:
+    pandas dataframe: pvalue dataframe, 
+    """
+    comparison_list = []
+    wald_pvalue_list = []
+
+    x_np = x.to_numpy()
+    cluster_labels_np = cluster_labels.to_numpy()
+
+    for k1 in range(len(set(cluster_labels))):
+         for k2 in range(k1+1, len(set(cluster_labels))):
+            comparison_list.append(str(k1) + ',' + str(k2))
+            stat, wald_pvalue = pval_module.wald_test(x_np, k1, k2, cluster_labels_np, iso=iso, sig=sig, siginv=siginv)
+            wald_pvalue_list.append(wald_pvalue)
+            
+    pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'wald_pvalue':wald_pvalue_list})
+
+    return pvalue_df
+
+# once wald is calculated, return preview of the table
+def wald_preview_clusterpval_status(wald_json):
+    
+    wald_df = pd.read_json(wald_json, orient='split')
+    
+    return html.Div([
+        html.H6(['Wald p-value file preview: ']),
+        html.Div(''),
+        html.Div(''),
+
+        # return a preview of the file showing first 10 lines
+        dash_table.DataTable(
+            data=wald_df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in wald_df.columns],
+            page_size=10,
+            style_table={'overflowX': 'auto'},
+            style_cell={
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis',
+            'textAlign': 'left'
+            }
+        ),
+
+        html.Hr(),
+
+        # return status of cluster pval
+        html.Div("Calculating adjusted p-value for clusters that were significantly different according to Wald p-value"),
+
+        html.Hr()
+
+    ])
+
+# function to iterate wald test over all significant comparisons
+def iterate_stattest_clusters_approx(wald_pvalue_df, sig_threshold, x, cluster_labels, cl_fun, positional_arguments, keyword_arguments, iso, sig, siginv, n_draws):
+    """
+    Function to recalculate the significant pvalues obtained from the wald test to calculate the adjusted pvalue
+    
+    Parameters:
+    :param wald_pvalue_df: pandas dataframe with pvalues from Wald test
+    :param sig_threshold: float, threshold that determine significance
+    :param x: pandas dataframe, dataframe with RNA seq data
+    :param cluster_labels: pandas series, serie with cluster labels
+    :param cl_fun: function used to cluster data in clustering module
+    :param positional_arguments: list of positional arguments used by cl_fun
+    :param keyword_arguments: dict of keyword argument key:value pairs used by
+    cl_fun
+    :param iso: boolean, if True isotropic covariance matrix model, otherwise
+    not
+    :param sig: optional scalar specifying sigma,  relevant if iso is True
+    :param siginv: optional matrix specifying Sigma^-1, relevant if
+    iso == False
+    :param ndraws: integer, selects the number of importance samples, default
+    of 2000
+    
+    Returns:
+    pandas dataframe: combined pvalue dataframe
+    """
+    comparison_list = []
+    cluster_pvalue_list = []
+
+    x_np = x.to_numpy()
+    cluster_labels_np = cluster_labels.to_numpy()
+
+    wald_pvalue_sig = wald_pvalue_df[wald_pvalue_df['wald_pvalue'] < float(sig_threshold)]
+    sig_comparisons = wald_pvalue_sig['comparisons'].tolist()
+
+    for i in sig_comparisons:
+        comparison_list.append(i)
+        k1, k2 = i.split(',')
+        stat, cluster_pvalue, stderr = pval_module.stattest_clusters_approx(x_np, int(k1), int(k2), cluster_labels_np, cl_fun, positional_arguments, keyword_arguments, iso=True, sig=None, siginv=None, ndraws=n_draws)
+        
+        cluster_pvalue_list.append(cluster_pvalue)
+
+    cluster_pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'cluster_pvalue':cluster_pvalue_list})
+
+    combined_pvalue_df = wald_pvalue_df.merge(cluster_pvalue_df, how='left', on='comparisons')
+
+    return combined_pvalue_df
+
+# function to use when new pvalue method is complete
+def new_pvalue_test(wald_pvalue_df, sig_threshold, x, cluster_labels, cl_fun, positional_arguments, keyword_arguments, iso, sig, siginv, n_draws):
+    """
+    Function to recalculate the significant pvalues obtained from the wald test to calculate the adjusted pvalue
+    
+    Parameters:
+    :param wald_pvalue_df: pandas dataframe with pvalues from Wald test
+    :param sig_threshold: float, threshold that determine significance
+    :param x: pandas dataframe, dataframe with RNA seq data
+    :param cluster_labels: pandas series, serie with cluster labels
+    :param cl_fun: function used to cluster data in clustering module
+    :param positional_arguments: list of positional arguments used by cl_fun
+    :param keyword_arguments: dict of keyword argument key:value pairs used by
+    cl_fun
+    :param iso: boolean, if True isotropic covariance matrix model, otherwise
+    not
+    :param sig: optional scalar specifying sigma,  relevant if iso is True
+    :param siginv: optional matrix specifying Sigma^-1, relevant if
+    iso == False
+    :param ndraws: integer, selects the number of importance samples, default
+    of 2000
+    
+    Returns:
+    pandas dataframe: combined pvalue dataframe
+    """
+    comparison_list = []
+    cluster_pvalue_list = []
+
+    x_np = x.to_numpy()
+    cluster_labels_np = cluster_labels.to_numpy()
+
+    wald_pvalue_sig = wald_pvalue_df[wald_pvalue_df['wald_pvalue'] < float(sig_threshold)]
+    sig_comparisons = wald_pvalue_sig['comparisons'].tolist()
+
+    for i in sig_comparisons:
+        comparison_list.append(i)
+        k1, k2 = i.split(',')
+        stat, cluster_pvalue, stderr = pval_module.stattest_clusters_approx(x_np, int(k1), int(k2), cluster_labels_np, cl_fun, positional_arguments, keyword_arguments, iso=True, sig=None, siginv=None, ndraws=n_draws)
+        
+        cluster_pvalue_list.append(cluster_pvalue)
+
+    cluster_pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'cluster_pvalue':cluster_pvalue_list})
+
+    combined_pvalue_df = wald_pvalue_df.merge(cluster_pvalue_df, how='left', on='comparisons')
+
+    return combined_pvalue_df
+
+# function to display preview of clusterpval table
+def clusterpval_preview(clusterpval_json, sig_threshold, num_draws):
+    clusterpval_df = pd.read_json(clusterpval_json, orient='split')
+        
+    return html.Div([
+        html.H6(['Adjusted p-value file preview: ']),
+        html.Div(''),
+        html.Div(''),
+
+        # return a preview of the file showing first 10 lines
+        dash_table.DataTable(
+            data=clusterpval_df.to_dict('records'),
+            columns=[{'name': i, 'id': i} for i in clusterpval_df.columns],
+            page_size=10,
+            style_table={'overflowX': 'auto'},
+            style_cell={
+            'overflow': 'hidden',
+            'textOverflow': 'ellipsis',
+            'textAlign': 'left'
+            },
+            style_data_conditional=[
+            {
+            'if': {
+                'filter_query': '{{cluster_pvalue}} < {} && {{cluster_pvalue}} >= 0'.format(float(sig_threshold)),
+                'column_id': 'cluster_pvalue'
+            },
+            'backgroundColor': 'yellow',
+            'color': 'black'
+            },
+            {
+            'if': {
+                'filter_query': "{cluster_pvalue} is nil",
+                'column_id': 'cluster_pvalue'
+            },
+            'backgroundColor': 'white',
+            'color': 'black'
+            },
+            {
+            'if': {
+                'filter_query': '{{wald_pvalue}} < {}'.format(float(sig_threshold)),
+                'column_id': 'wald_pvalue'
+            },
+            'backgroundColor': 'orange',
+            'color': 'black'
+            },
+            ]
+        ),
+    ])

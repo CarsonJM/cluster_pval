@@ -45,14 +45,14 @@ def hierarchical_clustering(input_dataset, nr_of_clusters, cluster_method, linka
     else:
         pass
     
-    if cluster_method == "KMeans":
+    if cluster_method == "k-means":
         cluster = KMeans(n_clusters=nr_of_clusters)
         dataset['cluster'] = cluster.fit_predict(input_dataset)
         ccl_fun = KMeans
     else:
         pass
     
-    if cluster_method == "Hierarchical":
+    if cluster_method == "hierarchical":
         cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage=linkage_method)
         dataset['cluster'] = cluster.fit_predict(dataset)
         ccl_fun = AgglomerativeClustering 
