@@ -20,12 +20,6 @@ import scipy.stats
 import numpy as np
 import pandas as pd
 
-<<<<<<< HEAD
-=======
-from sklearn.cluster import AgglomerativeClustering
-from cluster_pval.pval_module import trunc_sets
-
->>>>>>> 099056b517547d01252d25ad1247e2d4d42a83ac
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
     Checks to make sure parameters given to pvalue functions are formatted
@@ -217,9 +211,7 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
             first_term = -((phi[j]/scale_factor)**2)/2
             second_term = (q-1)*math.log(phi[j]/scale_factor)
             third_term = (q/2 -1)*math.log(2)
-            #print("third term: {}".format(third_term))
             fourth_term = calculate_log_gamma_function(q)
-            #print("fourth term: {}".format(fourth_term))
             fifth_term = math.log(scale_factor)
             sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
             log_survives[j] = (first_term + second_term - third_term - fourth_term - fifth_term - sixth_term)

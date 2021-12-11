@@ -273,7 +273,7 @@ class TestPvalModule(unittest.TestCase):
         :return: nothing so long as function yields same results as when
         using R wald_test function:
         """
-        insig_cell_data = np.genfromtxt(
+        sig_cell_data = np.genfromtxt(
             'tests/data_for_tests/200tcells_200bcells_200memorycells.csv',
             delimiter=',',skip_header=1)
         k = 3
@@ -282,7 +282,7 @@ class TestPvalModule(unittest.TestCase):
                              'linkage': 'ward'}
         sigcluster = AgglomerativeClustering(*positional_arguments,
                                           **keyword_arguments)
-        sigcluster.fit_predict(insig_cell_data)
+        sigcluster.fit_predict(sig_cell_data)
 
         # Using same siginv matrix as was used in R package (importing here
         # instead of recalculating)
@@ -290,19 +290,19 @@ class TestPvalModule(unittest.TestCase):
             'tests/data_for_tests/SigInv1.csv',
             delimiter=',', skip_header=1)
         # wald tests negative control
-        stat, pval = wald_test(insig_cell_data, 0, 1, insigcluster.labels_,
+        stat, pval = wald_test(sig_cell_data, 0, 1, sigcluster.labels_,
                                iso=False, siginv = siginv1)
         assert np.isclose(stat, 4.054059) and np.isclose(pval, 0)
-        stat, pval = wald_test(insig_cell_data, 0, 2, insigcluster.labels_,
+        stat, pval = wald_test(sig_cell_data, 0, 2, sigcluster.labels_,
                                iso=False, siginv=siginv1)
         assert np.isclose(stat, 2.961156) and np.isclose(pval, 9.282575e-13)
-        stat, pval = wald_test(insig_cell_data, 1, 2, insigcluster.labels_,
+        stat, pval = wald_test(sig_cell_data, 1, 2, sigcluster.labels_,
                                iso=False, siginv=siginv1)
         assert np.isclose(stat, 4.760857) and np.isclose(pval, 0)
 
         # stattest_clusters_approx negative controls
-        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 0, 1,
-                                                      insigcluster.labels_,
+        stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 0, 1,
+                                                      sigcluster.labels_,
                                                       AgglomerativeClustering,
                                                       positional_arguments,
                                                       keyword_arguments,
@@ -311,8 +311,8 @@ class TestPvalModule(unittest.TestCase):
                                                       ndraws = 200)
         assert np.isclose(stat, 4.054059) and (pval > .05) and \
                (stderr > .05)
-        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 0, 2,
-                                                      insigcluster.labels_,
+        stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 0, 2,
+                                                      sigcluster.labels_,
                                                       AgglomerativeClustering,
                                                       positional_arguments,
                                                       keyword_arguments,
@@ -321,8 +321,8 @@ class TestPvalModule(unittest.TestCase):
                                                       ndraws=200)
         assert np.isclose(stat, 2.961156) and (pval > .05) and \
                (stderr > .05)
-        stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 1, 2,
-                                                      insigcluster.labels_,
+        stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 1, 2,
+                                                      sigcluster.labels_,
                                                       AgglomerativeClustering,
                                                       positional_arguments,
                                                       keyword_arguments,
