@@ -275,7 +275,16 @@ num_clusters, cluster_method, contents, filename):
               Input('cluster-button', 'n_clicks'),
               State('upload-data', 'filename'))
 def output_cluster_status(n_clicks, filename):
-    """A"""
+    """
+    Function to return the status of the clustering
+
+    Parameters:
+    :param n_clicks: the number of clicks on the submit button
+    :param filename: string with pathway and name of file
+
+    returns:
+    display clustering status with filename
+    """
     if n_clicks > 0:
         return html.Div([html.Div("Clustering file: " + str(filename),
         style={'font-weight':'bold', 'font-style':'italic'}),
