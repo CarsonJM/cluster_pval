@@ -120,8 +120,6 @@ unit tests.
 	- A preview of the Wald p-value
 	- A preview of the adjusted p-value
 	
-```
-
 ## Contributing
 Project completed by S. Jannetty, C. Miller, A. Mounsey, S. Pollack & L. Droog. 
 
