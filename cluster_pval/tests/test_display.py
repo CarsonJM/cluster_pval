@@ -4,7 +4,8 @@ Tests for plotting function in display module
 import unittest
 import pandas as pd
 import numpy as np
-from display_module.display import cluster_plot
+from cluster_pval.cluster_pval.display_module.display import cluster_plot
+
 
 class PlotFunctionTest(unittest.TestCase):
     """Tests for cluster_plot function"""
