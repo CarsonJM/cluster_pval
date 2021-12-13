@@ -102,7 +102,7 @@ class TestPvalModule(unittest.TestCase):
         stat = 10.11433, stderr ~ .01084133, pval > .5
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script

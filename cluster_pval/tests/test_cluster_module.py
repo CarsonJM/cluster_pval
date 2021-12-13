@@ -5,7 +5,7 @@ tests for cluster_module function
 import unittest
 import numpy as np
 import pandas as pd
-from cluster_module.cluster_function import clustering
+from cluster_pval.cluster_module.cluster_function import clustering
 
 
 class ClusterModuleTest(unittest.TestCase):
