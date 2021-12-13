@@ -1,5 +1,10 @@
 """
-App.py
+App
+===
+
+Contents
+--------
+
 """
 
 import base64
@@ -20,11 +25,13 @@ from cluster_pval import display_module
 from cluster_pval import helper_module
 
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import KMeans
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-available_clustering_methods = ['Hierarchical']
+available_clustering_methods = ['hierarchical', 'k-means']
 available_linkage_methods = ['ward', 'complete', 'average', 'single']
+available_pvalue_methods = ['wald']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
@@ -75,6 +82,18 @@ app.layout = html.Div([
             'margin': '10px'
         },
     ),
+    # add a line break
+    html.Br(),
+    html.Br(),
+
+    # request sample orientation
+    "Are the samples organized in columns or rows?",
+    "(Select option where each row represents an object to be clusterd)",
+    dcc.Dropdown(
+    id='data-orientation',
+    options=[{'label': i, 'value': i} for i in ['columns', 'rows']],
+    value='rows'
+    ),
 
     html.Hr(),
 
@@ -82,16 +101,16 @@ app.layout = html.Div([
     html.Div(id='output-read-file-status'),
 
     # once file is read, show file preview and present option for choosing number of clusters DONE
-    html.Div(id='output-preview-file'),
+    html.Div(id='output-preview-file-req-num-clusters-req-cluster-method'),
 
     # once number of clusters is selected, return option to select clustering method
-    html.Div(id='output-cluster-method'),
+    html.Div(id='output-cluster-settings'),
 
     # once cluster method have been selected, return dropdown for linkages and/or cluster butto DONE
-    html.Div(id='output-linkage-cluster'),
+    html.Div(id='output-req-linkage'),
 
     # show file clustering status and submit button
-    html.Div(id='output-cluster-settings'),
+    html.Div(id='output-cluster-settings-req-submit'),
 
     # show file clustering status and submit button
     html.Div(id='output-cluster-status'),
@@ -102,6 +121,9 @@ app.layout = html.Div([
     # output clustering figure with option to download
     html.Div(id='output-cluster-figure'),
 
+    # request sig threshold and num draws (if applicable)
+    html.Div(id='output-req-threshold-req-num-draws'),
+
     # show wald calculation status
     html.Div(id='output-wald-status'),
 
@@ -109,7 +131,7 @@ app.layout = html.Div([
     dcc.Store(id='output-wald-df'),
 
     # show pvalue df with explanation of which pvalues will be recalculated
-    html.Div(id='output-wald-preview-and-clusterpval-status'),
+    html.Div(id='output-wald-preview-clusterpval-status'),
 
     # store wald pvalue df
     dcc.Store(id='output-clusterpval-df'),
@@ -130,33 +152,34 @@ def output_read_file_status(contents, filename):
         return children
 
 
-# return file preview and num clusters and cluster method input DONE
-@app.callback(Output('output-preview-file', 'children'),
+# return file preview and request num clusters and cluster method input DONE
+@app.callback(Output('output-preview-file-req-num-clusters-req-cluster-method', 'children'),
               Input('output-read-file-status', 'children'),
+              Input('data-orientation', 'value'),
               State('upload-data', 'contents'),
               State('upload-data', 'filename')
 )
-def output_preview_file(status, contents, filename):
+def output_preview_file_req_num_clusters_req_cluster_method(status, orientation, contents, filename):
      if status is not None:
-        children = helper_module.preview_file_and_num_clusters_and_cluster_methods(contents, filename)
+        children = helper_module.file_preview_req_num_clusters_req_cluster_method(orientation, contents, filename)
     
         return children
 
 
-# return linkage methods and/or cluster button once num_cluster and cluster method have been selected DONE
-@app.callback(Output('output-linkage-cluster', 'children'),
+# request linkage methods DONE
+@app.callback(Output('output-req-linkage', 'children'),
               Input('num-clusters', 'value'),
               Input('cluster-method', 'value')    
 )
-def output_linkage_and_cluster(num_clusters, cluster_method):
+def output_req_linkage_req_cluster(num_clusters, cluster_method):
      if num_clusters is not None and cluster_method is not None:
-        children = helper_module.linkage(cluster_method)
+        children = helper_module.req_linkage_method(num_clusters, cluster_method)
     
         return children
 
 
 # once linkage has been selected and/or button has been pressed, return clustering status and button to submit DONE
-@app.callback(Output('output-cluster-settings', 'children'),
+@app.callback(Output('output-cluster-settings-req-submit', 'children'),
               Input('linkage-method', 'value'),
               State('min-col', 'value'),
               State('max-col', 'value'),
@@ -165,9 +188,9 @@ def output_linkage_and_cluster(num_clusters, cluster_method):
               State('upload-data', 'contents'),
               State('upload-data', 'filename')
 )
-def output_cluster_settings_and_submit(linkage_method, min_col, max_col, num_clusters, cluster_method, contents, filename):
+def output_cluster_settings_req_submit(linkage_method, min_col, max_col, num_clusters, cluster_method, contents, filename):
      if contents is not None and num_clusters is not None and cluster_method is not None and linkage_method is not None:
-        children = helper_module.cluster_settings_and_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method)
+        children = helper_module.cluster_settings_req_submit(filename, min_col, max_col, num_clusters, cluster_method, linkage_method)
     
         return children
 
@@ -189,6 +212,7 @@ def output_cluster_status(n_clicks, filename):
 # once button has been pressed, cluster and store data DONE
 @app.callback(Output('output-cluster-df', 'data'),
               Input('output-cluster-status', 'children'),
+              State('data-orientation', 'value'),
               State('min-col', 'value'),
               State('max-col', 'value'),
               State('cluster-button', 'n_clicks'),
@@ -198,7 +222,7 @@ def output_cluster_status(n_clicks, filename):
               State('upload-data', 'contents'),
               State('upload-data', 'filename')
 )
-def output_cluster_df(status, min_col, max_col, n_clicks, linkage_method, num_clusters, cluster_method, contents, filename):
+def output_cluster_df(status, orientation, min_col, max_col, n_clicks, linkage_method, num_clusters, cluster_method, contents, filename):
      if status is not None:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
@@ -207,6 +231,10 @@ def output_cluster_df(status, min_col, max_col, n_clicks, linkage_method, num_cl
             df_col = df.iloc[:,min_col:max_col+1]
         else:
             df_col = df.iloc[:,min_col:]
+        if orientation == 'columns':
+                df = df.transpose()
+        else:
+            pass
 
         clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.hierarchical_clustering(df_col, num_clusters, cluster_method, linkage_method=linkage_method)
 
@@ -225,15 +253,29 @@ def output_cluster_figure(clustered_json):
         return children
 
 
+# request significance threshold and num draws if appropriate
+@app.callback(Output('output-req-threshold-req-num-draws', 'children'),
+              Input('output-cluster-figure', 'children'),
+              State('cluster-method', 'value'),
+              State('linkage-method', 'value')
+)
+def output_req_threshold_req_num_draws(clustered_figure, cluster_method, linkage_method):
+    if clustered_figure is not None:
+        children = helper_module.req_threshold_req_num_draws(clustered_figure, cluster_method, linkage_method)
+        return children
+
+
 # once image is generated, return wald pvalue status DONE
 @app.callback(Output('output-wald-status', 'children'),
-              Input('output-cluster-figure', 'children'),
-              State('upload-data', 'filename')
+              Input('p-value-button', 'n_clicks'),
+              Input('sig-threshold', 'value'),
+              State('num-draws', 'value'),
+              State('output-cluster-figure', 'children')
 )
-def output_wald_status(clustered_figure, filename):
-    if clustered_figure is not None:
+def output_wald_status(n_clicks, sig_threshold, num_draws, clustered_figure):
+    if n_clicks > 0:
         return html.Div([
-            "Calculating Wald p-value on clusters from: ", filename,
+            "Calculating wald p-value with threshold: ", sig_threshold,
 
             html.Hr()
         ])
@@ -241,10 +283,13 @@ def output_wald_status(clustered_figure, filename):
 
 # once wald status has been returned, store wald pvalue df DONE
 @app.callback(Output('output-wald-df', 'data'),
-              Input('output-cluster-status', 'children'),
-              Input('output-cluster-df', 'data')
+              Input('output-wald-status', 'children'),
+              State('sig-threshold', 'value'),
+              State('num-draws', 'value'),
+              State('output-cluster-figure', 'children'),
+              State('output-cluster-df', 'data')      
 )
-def output_wald_df(status, clustered_json):
+def output_wald_df(status, sig_threshold, num_draws, figure, clustered_json):
      if status is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
         wald_df = helper_module.iterate_wald_test(clustered_df, clustered_df['cluster'], iso=True, sig=None, siginv=None)
@@ -253,115 +298,56 @@ def output_wald_df(status, clustered_json):
 
 
 # once wald df has been stored, return a preview of pvalue table and return adj pvalue status DONE
-@app.callback(Output('output-wald-preview-and-clusterpval-status', 'children'),
-              Input('output-wald-df', 'data')
+@app.callback(Output('output-wald-preview-clusterpval-status', 'children'),
+              Input('output-wald-df', 'data'),
+              State('sig-threshold', 'value'),
+              State('num-draws', 'value')
 )
-def output_wald_preview_and_cluserpval_status(wald_json):
-     if wald_json is not None:
-        wald_df = pd.read_json(wald_json, orient='split')
-        
-        return html.Div([
-            html.H6(['Wald p-value file preview: ']),
-            html.Div(''),
-            html.Div(''),
-
-            # return a preview of the file showing first 10 lines
-            dash_table.DataTable(
-                data=wald_df.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in wald_df.columns],
-                page_size=10,
-                style_table={'overflowX': 'auto'},
-                style_cell={
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis',
-                'textAlign': 'left'
-                }
-            ),
-
-            html.Hr(),
-
-            # return status of cluster pval
-            html.Div("Calculating adjusted p-value for clusters that were significantly different according to Wald p-value"),
-
-            html.Hr()
-
-        ])
+def output_wald_preview_and_cluserpval_status(wald_json, sig_threshold, num_draws):
+    if wald_json is not None:
+        children = helper_module.wald_preview_clusterpval_status(wald_json)
+        return children
 
 
 # # once clusterpval status has been returned, store clusterpval df DONE
 @app.callback(Output('output-clusterpval-df', 'data'),
-              Input('output-wald-preview-and-clusterpval-status', 'children'),
+              Input('output-wald-preview-clusterpval-status', 'children'),
               State('output-cluster-df', 'data'),
               State('output-wald-df', 'data'),
               State('linkage-method', 'value'),
               State('num-clusters', 'value'),
-              State('cluster-method', 'value')
+              State('cluster-method', 'value'),
+              State('sig-threshold', 'value'),
+              State('num-draws', 'value')
 )
-def output_clusterpval_df(status, clustered_json, wald_json, linkage_method, num_clusters, cluster_method):
+def output_clusterpval_df(status, clustered_json, wald_json, linkage_method, num_clusters, cluster_method, sig_threshold, num_draws):
      if status is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
         wald_df = pd.read_json(wald_json, orient='split')
 
-        if cluster_method == 'Hierarchical':
+        if cluster_method == 'hierarchical':
             clfun=AgglomerativeClustering
-
-        clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, 0.05, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, ndraws=20)
+            if linkage_method == 'ward' or 'average':
+                clusterpval_df = helper_module.new_pvalue_test(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, n_draws=num_draws)
+            else:
+                clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, n_draws=num_draws)
+        if cluster_method == 'k-means':
+            clfun=KMeans
+            clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters}, iso=True, sig=None, siginv=None, n_draws=num_draws)
 
         return clusterpval_df.to_json(orient='split')
 
 
 # once clusterpval df has been stored, return a preview of pvalue table DONE
 @app.callback(Output('output-clusterpval-preview', 'children'),
-              Input('output-clusterpval-df', 'data')
+              Input('output-clusterpval-df', 'data'),
+              State('sig-threshold', 'value'),
+              State('num-draws', 'value')
 )
-def output_cluserpval_preview(clusterpval_json):
+def output_cluserpval_preview(clusterpval_json, sig_threshold, num_draws):
      if clusterpval_json is not None:
-        clusterpval_df = pd.read_json(clusterpval_json, orient='split')
-        
-        return html.Div([
-            html.H6(['Adjusted p-value file preview: ']),
-            html.Div(''),
-            html.Div(''),
-
-            # return a preview of the file showing first 10 lines
-            dash_table.DataTable(
-                data=clusterpval_df.to_dict('records'),
-                columns=[{'name': i, 'id': i} for i in clusterpval_df.columns],
-                page_size=10,
-                style_table={'overflowX': 'auto'},
-                style_cell={
-                'overflow': 'hidden',
-                'textOverflow': 'ellipsis',
-                'textAlign': 'left'
-                },
-                style_data_conditional=[
-                {
-                'if': {
-                    'filter_query': "{cluster_pvalue} < 0.05 && {cluster_pvalue} >= 0",
-                    'column_id': 'cluster_pvalue'
-                },
-                'backgroundColor': 'yellow',
-                'color': 'black'
-                },
-                {
-                'if': {
-                    'filter_query': "{cluster_pvalue} is nil",
-                    'column_id': 'cluster_pvalue'
-                },
-                'backgroundColor': 'white',
-                'color': 'black'
-                },
-                {
-                'if': {
-                    'filter_query': '{wald_pvalue} < 0.05',
-                    'column_id': 'wald_pvalue'
-                },
-                'backgroundColor': 'orange',
-                'color': 'black'
-                },
-                ]
-            ),
-        ])
+        children = helper_module.clusterpval_preview(clusterpval_json, sig_threshold, num_draws)
+        return children
 
 
 if __name__ == '__main__':

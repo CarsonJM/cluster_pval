@@ -3,7 +3,7 @@
 
 # [Open the webapp here!](https://cluster-pval.herokuapp.com/)
 
-![Logo image](doc/images_for_Readme/pea_logo.png)
+![Logo image](doc/images_for_README/pea_logo.png)
 
 # cluster_pval
 
@@ -65,7 +65,6 @@ scipy, umap-learn, and plotly.
 │   │   └── Open_File_Navigator.PNG
 │   ├── USE_CASES.md
 │   └── USER_STORIES.md
-├── environment.yml
 ├── LICENSE
 ├── Procfile
 ├── README.md

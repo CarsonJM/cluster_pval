@@ -1,6 +1,5 @@
 """
 This code is the format data module.
-"C:/USERS/annam/CSE/clusterclub/Cluster_PVal/Cluster_PVal/tests/data_for_tests/GSE158761_matrix.mtx.gz"
 """
 
 import scipy.io
@@ -9,7 +8,7 @@ import pandas as pd
 def ask_user():
     """Ask how the user would like to format the dataframe
     """
-    print("Do you want genes in columns of genes in rows?")
+    print("Are the samples organized in columns or rows?")
     response = ''
     while response.lower() not in {"columns", "rows"}:
         response = input("Please enter columns or rows: ")
