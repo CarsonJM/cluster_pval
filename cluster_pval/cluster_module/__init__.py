@@ -1,1 +1,1 @@
-from .cluster_function import hierarchical_clustering
+from .cluster_function import *

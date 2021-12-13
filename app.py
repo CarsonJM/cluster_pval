@@ -46,23 +46,32 @@ app.layout = html.Div([
             'background-color': '#4b2e83',
             'fontSize': '60px',
             'color': 'white',
-            'padding': '30px'
+            'padding': '30px',
+            'font-weight':'bold'
         }),
 
     # horizontal line
     html.Hr(),
 
     # change subtitle to contain a better explanation of the tool
+    html.H6(['Tool summary: '], style={'font-weight':'bold'}),
+            html.Div(''),
+            html.Div(''),
+
     html.Div(
         children="""
         Comparing traditional and adjusted p-values when comparing differences of means
         between two estimated clusters in a data set.
         """,
         style={
-            'textAlign': 'center'
+            'textAlign': 'left'
         }),
     
     html.Hr(), 
+
+    html.H6(['Data Import: '], style={'font-weight':'bold'}),
+            html.Div(''),
+            html.Div(''),
 
     # file upload 
     dcc.Upload(
@@ -87,8 +96,9 @@ app.layout = html.Div([
     html.Br(),
 
     # request sample orientation
-    "Are the samples organized in columns or rows?",
-    "(Select option where each row represents an object to be clusterd)",
+    html.Div("Are the samples organized in columns or rows? ", style={'font-weight':'bold'}),
+    html.Br(),
+    html.Div("Select option where each row represents one object to be clustered", style={'font-style': 'italic'}),
     dcc.Dropdown(
     id='data-orientation',
     options=[{'label': i, 'value': i} for i in ['columns', 'rows']],
@@ -109,31 +119,33 @@ app.layout = html.Div([
     # once cluster method have been selected, return dropdown for linkages and/or cluster butto DONE
     html.Div(id='output-req-linkage'),
 
+    # after all clustering/linkage methods have been selected, 
     # show file clustering status and submit button
     html.Div(id='output-cluster-settings-req-submit'),
 
-    # show file clustering status and submit button
+    # after submitting, show file clustering status
     html.Div(id='output-cluster-status'),
 
-    # store clustered df
+    # store clustered df for future use
     dcc.Store(id='output-cluster-df'),
 
-    # output clustering figure with option to download
+    # output clustering figure
     html.Div(id='output-cluster-figure'),
 
-    # request sig threshold and num draws (if applicable)
+    # after clustering is complete,
+    # request sig threshold, num draws (if applicable), and submit button
     html.Div(id='output-req-threshold-req-num-draws'),
 
-    # show wald calculation status
+    # after submitting, show wald calculation status
     html.Div(id='output-wald-status'),
 
-    # store wald df
+    # store wald df for future use
     dcc.Store(id='output-wald-df'),
 
     # show pvalue df with explanation of which pvalues will be recalculated
     html.Div(id='output-wald-preview-clusterpval-status'),
 
-    # store wald pvalue df
+    # store adjusted pvalue df for future use
     dcc.Store(id='output-clusterpval-df'),
 
     # display pvalue table with changed results highlighted with option to download
@@ -202,10 +214,8 @@ def output_cluster_settings_req_submit(linkage_method, min_col, max_col, num_clu
 )
 def output_cluster_status(n_clicks, filename):
      if n_clicks > 0:
-        return html.Div([
-            "Clustering file: ", filename,
-
-            html.Hr()
+        return html.Div([html.Div("Clustering file: " + str(filename), style={'font-weight':'bold', 'font-style':'italic'}),
+        html.Hr()
         ])
 
 
@@ -236,7 +246,8 @@ def output_cluster_df(status, orientation, min_col, max_col, n_clicks, linkage_m
         else:
             pass
 
-        clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.hierarchical_clustering(df_col, num_clusters, cluster_method, linkage_method=linkage_method)
+        clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.clustering(df_col, num_clusters, cluster_method, linkage_method=linkage_method)
+        clustered_df['cluster'] = clustered_df['cluster'] + 1
 
         return clustered_df.to_json(orient='split')
 
@@ -275,7 +286,7 @@ def output_req_threshold_req_num_draws(clustered_figure, cluster_method, linkage
 def output_wald_status(n_clicks, sig_threshold, num_draws, clustered_figure):
     if n_clicks > 0:
         return html.Div([
-            "Calculating wald p-value with threshold: ", sig_threshold,
+            html.Div("Calculating wald p-value with threshold: " + str(sig_threshold), style={'font-weight':'bold', 'font-style':'italic'}),
 
             html.Hr()
         ])
@@ -327,11 +338,8 @@ def output_clusterpval_df(status, clustered_json, wald_json, linkage_method, num
 
         if cluster_method == 'hierarchical':
             clfun=AgglomerativeClustering
-            if linkage_method == 'ward' or 'average':
-                clusterpval_df = helper_module.new_pvalue_test(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, n_draws=num_draws)
-            else:
-                clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, n_draws=num_draws)
-        if cluster_method == 'k-means':
+            clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters, 'affinity': 'euclidean', 'linkage': linkage_method}, iso=True, sig=None, siginv=None, n_draws=num_draws)
+        else:
             clfun=KMeans
             clusterpval_df = helper_module.iterate_stattest_clusters_approx(wald_df, sig_threshold, clustered_df, clustered_df['cluster'], cl_fun=clfun, positional_arguments=[], keyword_arguments={'n_clusters': num_clusters}, iso=True, sig=None, siginv=None, n_draws=num_draws)
 

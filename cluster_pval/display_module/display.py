@@ -25,12 +25,15 @@ def cluster_plot(clustered_df):
     pca_2 = PCA(n_components=2)
     principal_components = pca_2.fit_transform(clustered_df)
     principal_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
+    var_per_array = pca_2.explained_variance_ratio_
+    var_1 = '% variance explained by PC1 ' + str(round(var_per_array[0] * 100, 2))
+    var_2 = '% variance explained by PC2 ' + str(round(var_per_array[1] * 100, 2))
 
     # plot data in scatter plot
     clustered_df = clustered_df.sort_values(['cluster'], ascending=True)
     clustered_df['cluster'] = clustered_df['cluster'].astype(str)
     fig = px.scatter(x=principal_df['PC1'], y=principal_df['PC2'], color=clustered_df['cluster'],
-                     labels={'x': "First Principal Component", 'y': "Second Principal Component", 'color': "Cluster"},
+                     labels={'x': var_1, 'y': var_2, 'color': "Cluster"},
                      title="Scatter plot of clustered cells",
                      template="simple_white")
 

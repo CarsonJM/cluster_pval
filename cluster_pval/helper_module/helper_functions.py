@@ -60,9 +60,9 @@ def read_file_status(filename):
     if 'csv' in filename:
         return html.Div([
             # return read file status
-            html.Div(children=[
-                'Reading file: ', filename
-                ]),
+            html.Div('Reading file: ' + str(filename),
+                style={'font-style': 'italic',
+                'font-weight':'bold'}),
 
             html.Hr(),
         ])
@@ -71,7 +71,8 @@ def read_file_status(filename):
             'The uploaded file must be in csv format'],
             style={
             'textAlign': 'center',
-            'fontSize': '30px'
+            'fontSize': '30px',
+            'color' : 'red'
             }
         )
 
@@ -111,7 +112,7 @@ def file_preview_req_num_clusters_req_cluster_method(orientation, contents, file
 
         # objects to return after reading the file
         return html.Div([
-            html.H6(['File preview: ', filename]),
+            html.H6(['File preview: '], style={'font-weight':'bold'}),
             html.Div(''),
             html.Div(''),
             # return a preview of the file showing first 10 lines
@@ -131,11 +132,14 @@ def file_preview_req_num_clusters_req_cluster_method(orientation, contents, file
 
             # return option to specify which columns contain data
             html.Div([
-                html.H6('Data information:'),
+                html.H6('Data information:', style={'font-weight':'bold'}),
                 html.Div(''),
                 html.Div(''), 
                 #give a preview of the uploaded dataset on the dashboard and request input of the user
-                "Input columns containing data to be clustered (first column should denoted with 0):",
+                html.Div("Input columns containing data to be clustered", style={'font-weight':'bold'}),
+                html.Br(),
+                html.Div("Leaving empty will select the entire dataframe. ", style={'font-style': 'italic'}),
+                html.Div("Use 0-based indexes, and leave last number blank if the rest of the dataframe should be used", style={'font-style': 'italic'}),
                 html.Div([dcc.Input(id='min-col', type='number', min=0, step=1),
                 ' - ', dcc.Input(id='max-col', type='number', min=0, step=1)
                 ]),
@@ -145,20 +149,20 @@ def file_preview_req_num_clusters_req_cluster_method(orientation, contents, file
 
             # return option to input desired number of clusters
             html.Div([
-                html.H6('Number of clusters:'),
+                html.H6('Number of clusters:', style={'font-weight':'bold'}),
                 html.Div(''),
                 html.Div(''),
-                "Input desired number of clusters: ",
+                html.Div("Input desired number of clusters: ", style={'font-weight':'bold'}),
                 dcc.Input(id='num-clusters', type='number', min=1, step=1)
             ]),
 
             html.Hr(),
 
             html.Div([
-                html.H6('Clustering method:'),
+                html.H6('Clustering method:', style={'font-weight':'bold'}),
                 html.Div(''),
                 html.Div(''),
-                "Select a clustering method to use",
+                html.Div("Select a clustering method to use", style={'font-weight':'bold'}),
                 dcc.Dropdown(
                 id='cluster-method',
                 options=[{'label': i, 'value': i} for i in available_clustering_methods],
@@ -183,16 +187,14 @@ def req_linkage_method(num_cluisters, cluster_method):
     if cluster_method == 'hierarchical':
         # objects to return after reading the file
         return html.Div([
-            html.H6('Linkage method:'),
+            html.H6('Linkage method:', style={'font-weight':'bold'}),
             html.Div(''),
             html.Div(''),
             # return option to select linkage method
-            html.Div(['Select a linkage method to be applied to hierarchical clustering',
+            html.Div('Select a linkage method to be applied to hierarchical clustering', style={'font-weight':'bold'}),
             dcc.Dropdown(
                 id='linkage-method',
-                options=[{'label': i, 'value': i} for i in available_linkage_methods],
-            )
-            ]),
+                options=[{'label': i, 'value': i} for i in available_linkage_methods]),
 
             html.Hr()
         ])
@@ -221,7 +223,7 @@ def cluster_settings_req_submit(filename, min_col, max_col, num_clusters, cluste
     if cluster_method == 'hierarchical':
         # return clustering status
         return html.Div([
-            html.H6('Clustering summary:'),
+            html.H6('Clustering summary:', style={'font-weight':'bold'}),
             html.Div(''),
             html.Div(''),
             html.Div(['Clustering file: ', filename, '\n']),
@@ -230,17 +232,22 @@ def cluster_settings_req_submit(filename, min_col, max_col, num_clusters, cluste
             html.Div(['Clustering method: ', cluster_method, '\n']),
             html.Div(['Linkage method: ', linkage_method]),
 
+            html.Br(),
+
+            html.Div("Clustering will be performed using scikit-learn's clustering algorithms", style={'font-style':'italic'}),
+            html.Div("See https://scikit-learn.org/stable/modules/clustering.html for more information", style={'font-style':'italic'}),
+
             html.Hr(),
 
             # button to submit clustering
-            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering'),
+            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering', style={'font-weight':'bold'}),
 
             html.Hr(),
         ])
 
     else:
         return html.Div([
-            html.H6('Clustering summary:'),
+            html.H6('Clustering summary:', style={'font-weight':'bold'}),
             html.Div(''),
             html.Div(''),
             html.Div(['Clustering file: ', filename, '\n']),
@@ -251,7 +258,7 @@ def cluster_settings_req_submit(filename, min_col, max_col, num_clusters, cluste
             html.Hr(),
 
             # button to submit clustering
-            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering'),
+            html.Button(id='cluster-button', n_clicks=0, children='Press to submit clustering', style={'font-weight':'bold'}),
 
             html.Hr()
         ])
@@ -271,7 +278,8 @@ def cluster_figure(clustered_df):
     fig = display_module.cluster_plot(clustered_df)
 
     return html.Div([
-        html.H6('Cluster visualization:'),
+        html.H6('Cluster visualization:', style={'font-weight':'bold'}),
+        html.Div('Created using plotly (https://plotly.com) and scikit-learn decompositon (https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html)', style={'font-style':'italic'}),
         html.Div(''),
         html.Div(''),
         # return visualization of clustering
@@ -284,44 +292,33 @@ def cluster_figure(clustered_df):
 
 # once figure has been displayed, request threshold and num draws if applicable
 def req_threshold_req_num_draws(clustered_figure, cluster_method, linkage_method):
-    if linkage_method == 'ward' or linkage_method == 'average':
-        return html.Div([
-            html.H6('P-value calculation information:'),
-            html.Div(''),
-            html.Div(''), 
+    return html.Div([
+        html.H6('P-value calculation information:', style={'font-weight':'bold'}),
+        html.Div('The initial p value is calculated using a Wald test.', style={'font-style':'italic'}),
+        html.Div('The adjusted p value calculation methods used here assume an isotropic covariance matrix model', style={'font-style':'italic'}),
+        html.Div('and estimates sigma as described in [Gao et al 2020 section 4.3](https://arxiv.org/pdf/2012.02936.pdf).', style={'font-style':'italic'}),
+        html.Div('Adjusted p value is estimated using Monte Carlo approximation as described in [Gao et al 2020 section 4.1](https://arxiv.org/pdf/2012.02936.pdf).', style={'font-style':'italic'}),
 
-            "Input p-value significance threshold: ",
-            dcc.Input(id='sig-threshold', type='number', min=0, max=1),
+        html.Br(),
+        html.Br(), 
 
-            dcc.Input(id='num-draws', value=20, type='hidden'),
+        html.Div("Input p-value significance threshold: ", style={'font-weight':'bold'}),
+        html.Div("Must be a float between 0.0 and 1.0", style={'font-style':'italic'}),
+        dcc.Input(id='sig-threshold', type='number', min=0, max=1),
 
-            html.Hr(),
+        html.Br(),
+        html.Br(),
 
-            html.Button(id='p-value-button', n_clicks=0, children='Press to submit p-value calculation'),
+        html.Div("Input number of draws to be used in calculating adjusted p-value: ", style={'font-weight':'bold'}),
+        html.Div("Must be an integer (recommended number of draws is 2,000)", style={'font-style':'italic'}),
+        dcc.Input(id='num-draws', type='number', min=0),
 
-            html.Hr()
-        ])
-    else:
-        return html.Div([
-            html.H6('P-value calculation information:'),
-            html.Div(''),
-            html.Div(''), 
+        html.Hr(),
 
-            "Input p-value significance threshold: ",
-            dcc.Input(id='sig-threshold', type='number', min=0, max=1),
+        html.Button(id='p-value-button', n_clicks=0, children='Press to submit p-value calculation', style={'font-weight':'bold'}),
 
-            html.Br(),
-            html.Br(),
-
-            "Input number of draws to be used in calculating adjusted p-value: ",
-            dcc.Input(id='num-draws', type='number', min=0),
-
-            html.Hr(),
-
-            html.Button(id='p-value-button', n_clicks=0, children='Press to submit p-value calculation'),
-
-            html.Hr()
-        ])
+        html.Hr()
+    ])
 
 # function to iterate wald test over each comparison
 def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
@@ -343,10 +340,11 @@ def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
     comparison_list = []
     wald_pvalue_list = []
 
-    x_np = x.to_numpy()
+    x_data = x.iloc[: , :-1]
+    x_np = x_data.to_numpy()
     cluster_labels_np = cluster_labels.to_numpy()
 
-    for k1 in range(len(set(cluster_labels))):
+    for k1 in range(1, len(set(cluster_labels))):
          for k2 in range(k1+1, len(set(cluster_labels))):
             comparison_list.append(str(k1) + ',' + str(k2))
             stat, wald_pvalue = pval_module.wald_test(x_np, k1, k2, cluster_labels_np, iso=iso, sig=sig, siginv=siginv)
@@ -362,7 +360,7 @@ def wald_preview_clusterpval_status(wald_json):
     wald_df = pd.read_json(wald_json, orient='split')
     
     return html.Div([
-        html.H6(['Wald p-value file preview: ']),
+        html.H6(['Wald p-value file preview: '], style={'font-weight':'bold'}),
         html.Div(''),
         html.Div(''),
 
@@ -382,7 +380,7 @@ def wald_preview_clusterpval_status(wald_json):
         html.Hr(),
 
         # return status of cluster pval
-        html.Div("Calculating adjusted p-value for clusters that were significantly different according to Wald p-value"),
+        html.Div("Calculating adjusted p-value for clusters that were significantly different according to Wald p-value", style={'font-weight':'bold', 'font-style':'italic'}),
 
         html.Hr()
 
@@ -416,54 +414,8 @@ def iterate_stattest_clusters_approx(wald_pvalue_df, sig_threshold, x, cluster_l
     comparison_list = []
     cluster_pvalue_list = []
 
-    x_np = x.to_numpy()
-    cluster_labels_np = cluster_labels.to_numpy()
-
-    wald_pvalue_sig = wald_pvalue_df[wald_pvalue_df['wald_pvalue'] < float(sig_threshold)]
-    sig_comparisons = wald_pvalue_sig['comparisons'].tolist()
-
-    for i in sig_comparisons:
-        comparison_list.append(i)
-        k1, k2 = i.split(',')
-        stat, cluster_pvalue, stderr = pval_module.stattest_clusters_approx(x_np, int(k1), int(k2), cluster_labels_np, cl_fun, positional_arguments, keyword_arguments, iso=True, sig=None, siginv=None, ndraws=n_draws)
-        
-        cluster_pvalue_list.append(cluster_pvalue)
-
-    cluster_pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'cluster_pvalue':cluster_pvalue_list})
-
-    combined_pvalue_df = wald_pvalue_df.merge(cluster_pvalue_df, how='left', on='comparisons')
-
-    return combined_pvalue_df
-
-# function to use when new pvalue method is complete
-def new_pvalue_test(wald_pvalue_df, sig_threshold, x, cluster_labels, cl_fun, positional_arguments, keyword_arguments, iso, sig, siginv, n_draws):
-    """
-    Function to recalculate the significant pvalues obtained from the wald test to calculate the adjusted pvalue
-    
-    Parameters:
-    :param wald_pvalue_df: pandas dataframe with pvalues from Wald test
-    :param sig_threshold: float, threshold that determine significance
-    :param x: pandas dataframe, dataframe with RNA seq data
-    :param cluster_labels: pandas series, serie with cluster labels
-    :param cl_fun: function used to cluster data in clustering module
-    :param positional_arguments: list of positional arguments used by cl_fun
-    :param keyword_arguments: dict of keyword argument key:value pairs used by
-    cl_fun
-    :param iso: boolean, if True isotropic covariance matrix model, otherwise
-    not
-    :param sig: optional scalar specifying sigma,  relevant if iso is True
-    :param siginv: optional matrix specifying Sigma^-1, relevant if
-    iso == False
-    :param ndraws: integer, selects the number of importance samples, default
-    of 2000
-    
-    Returns:
-    pandas dataframe: combined pvalue dataframe
-    """
-    comparison_list = []
-    cluster_pvalue_list = []
-
-    x_np = x.to_numpy()
+    x_data = x.iloc[: , :-1]
+    x_np = x_data.to_numpy()
     cluster_labels_np = cluster_labels.to_numpy()
 
     wald_pvalue_sig = wald_pvalue_df[wald_pvalue_df['wald_pvalue'] < float(sig_threshold)]
@@ -487,7 +439,13 @@ def clusterpval_preview(clusterpval_json, sig_threshold, num_draws):
     clusterpval_df = pd.read_json(clusterpval_json, orient='split')
         
     return html.Div([
-        html.H6(['Adjusted p-value file preview: ']),
+        html.H6(['Adjusted p-value file preview: '], style={'font-weight':'bold'}),
+        html.Br(),
+        html.Div('Cells in wald_pvalue column that are orange signify clusters that are significantly', style={'font-style':'italic'}),
+        html.Div('different when using traditional Wald test.', style={'font-style':'italic'}),
+        html.Div('Cells in cluster_pvalue column that are yellow signify clusters that are significantly', style={'font-style':'italic'}),
+        html.Div('different, even when using the adjusted p value method', style={'font-style':'italic'}),
+        html.Br(),
         html.Div(''),
         html.Div(''),
 
