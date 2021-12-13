@@ -26,8 +26,8 @@ def cluster_plot(clustered_df):
     principal_components = pca_2.fit_transform(clustered_df)
     principal_df = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
     var_per_array = pca_2.explained_variance_ratio_
-    var_1 = '% variance explained by PC1 ' + str(round(var_per_array[0] * 100, 2))
-    var_2 = '% variance explained by PC2 ' + str(round(var_per_array[1] * 100, 2))
+    var_1 = 'PC1 (' + str(round(var_per_array[0] * 100, 2)) + '%)'
+    var_2 = 'PC2 (' + str(round(var_per_array[1] * 100, 2)) + '%)'
 
     # plot data in scatter plot
     clustered_df = clustered_df.sort_values(['cluster'], ascending=True)
