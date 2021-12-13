@@ -100,46 +100,26 @@ unit tests.
 
 ## Usage
 
-INSERT GUI INSTRUCTIONS AND SCREEN GRABS HERE
-
-
-The p value calculation functions can be used with any clustering algorithm in sklearn as follows
-```python
-from pval_module.stattests import stattest_clusters_approx
-from pval_module.stattests import wald_test
-
-# np array holding points to cluster
-x = np.array([[5, 3],
-                      [10, 15],
-                      [15, 12],
-                      [24, 10],
-                      [30, 30],
-                      [85, 70],
-                      [71, 80],
-                      [60, 78],
-                      [70, 55],
-                      [80, 91], ])
-# number of clusters
-k = 2
-# function used to cluster
-cl_fun = sklearn.cluster.AgglomerativeClustering
-# positional arguments given to function used to cluster
-positional_arguments = []
-# keyword arguments given to function to cluster
-keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
-                             'linkage': 'average'}
-cluster = cl_fun(*positional_arguments, **keyword_arguments)
-cluster.fit_predict(x)
-# k1 and k2 are the clusters being tested for significant differences
-# in means
-k1 = 0
-k2 = 1
-# running adjusted pvalue function
-stat, pval, stderr = stattest_clusters_approx(x, k1, k2, cluster.labels_, 
-                                              cl_fun, positional_arguments, 
-                                              keyword_arguments)
-#running wald test function
-wald_test(x, k1, k2, cluster.labels_)
+1. Import the Cluster_Pval package by:
+	- opening your terminal
+	- assuming that  Git is installed, type: Git Clone "[link to repository]"
+2. While being in the main repository directory, 
+   open the web app by typing in your terminal: python app.py
+3. Use the link that is showed in the Terminal to go to the webapp
+4. Drag or upload the dataset (in CSV format) in the web app
+5. You'll see a preview of your data, and you will be requested to submit the following data:
+	- Data information; the first and last columns containing data to be clustered. 
+		Please note that this is in zero-index format, 
+	  meaning that the first column of the dataset is denoted with 0. 
+	- Number of clusters
+	- Clustering method; choose to apply hierarchical of K-means clustering
+	- linkage method
+6. Click on "Press to submit clustering"
+7. You will see the following results:
+	- A cluster visualization with the option to download the figure
+	- A preview of the Wald p-value
+	- A preview of the adjusted p-value
+	
 ```
 
 ## Contributing
