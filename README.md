@@ -100,12 +100,16 @@ unit tests.
 
 ## Usage
 
+To open from your terminal:
 1. Import the Cluster_Pval package by:
 	- opening your terminal
 	- assuming that  Git is installed, type: Git Clone "[link to repository]"
 2. While being in the main repository directory, 
    open the web app by typing in your terminal: python app.py
 3. Use the link that is showed in the Terminal to go to the webapp
+
+Or open directly from link in README
+
 4. Drag or upload the dataset (in CSV format) in the web app
 5. You'll see a preview of your data, and you will be requested to submit the following data:
 	- Data information; the first and last columns containing data to be clustered. 
@@ -129,4 +133,7 @@ Pull requests are welcome.
 
 ## License
 [BSD 2-Clause "Simplified" License](https://choosealicense.com/licenses/bsd-2-clause/)
+
+## Acknowledgement
+This project is conducted as part of the CSE 583 - Software development for Data Scientists at the University of Washington. Therefore, we want to thank prof. D. Beck and A. Mittal for the valuable lessons and guidance that helped to create this application. 
 
