@@ -202,10 +202,12 @@ class TestPvalModule(unittest.TestCase):
 
     def test_insig_cells(self):
         """
-        One shot test to see the wald test yield significant results for both
-        cell datasets.
-        :return: nothing so long as function yields same results as when
-        using R wald_test function:
+        One shot test to see the wald test yield significant results for
+        clustering cells of the same type and the adjusted p value method
+        yield insignificant results
+        :return: Tests pass if  functions find same stat values as those
+        calculated using R functions, significant p values for the wald tests,
+        and insignificant p values for the adjusted p value functions.
         """
         insig_cell_data = np.genfromtxt(
             'tests/data_for_tests/600tcells.csv',
@@ -287,18 +289,18 @@ class TestPvalModule(unittest.TestCase):
         # Using same siginv matrix as was used in R package (importing here
         # instead of recalculating)
         siginv1 = np.genfromtxt(
-            'tests/data_for_tests/SigInv1.csv',
+            'tests/data_for_tests/SigInv2_200t_200b_200mem.csv',
             delimiter=',', skip_header=1)
         # wald tests negative control
         stat, pval = wald_test(sig_cell_data, 0, 1, sigcluster.labels_,
                                iso=False, siginv = siginv1)
-        assert np.isclose(stat, 4.054059) and np.isclose(pval, 0)
+        assert np.isclose(stat, 4.274537) and np.isclose(pval, 0)
         stat, pval = wald_test(sig_cell_data, 0, 2, sigcluster.labels_,
                                iso=False, siginv=siginv1)
-        assert np.isclose(stat, 2.961156) and np.isclose(pval, 9.282575e-13)
+        assert np.isclose(stat, 4.3801) and np.isclose(pval, 0)
         stat, pval = wald_test(sig_cell_data, 1, 2, sigcluster.labels_,
                                iso=False, siginv=siginv1)
-        assert np.isclose(stat, 4.760857) and np.isclose(pval, 0)
+        assert np.isclose(stat, 3.042581) and np.isclose(pval, 0)
 
         # stattest_clusters_approx negative controls
         stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 0, 1,
@@ -309,8 +311,7 @@ class TestPvalModule(unittest.TestCase):
                                                       iso=False,
                                                       siginv=siginv1,
                                                       ndraws = 200)
-        assert np.isclose(stat, 4.054059) and (pval > .05) and \
-               (stderr > .05)
+        assert np.isclose(stat, 4.274537) and (pval < .05)
         stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 0, 2,
                                                       sigcluster.labels_,
                                                       AgglomerativeClustering,
@@ -319,8 +320,7 @@ class TestPvalModule(unittest.TestCase):
                                                       iso=False,
                                                       siginv=siginv1,
                                                       ndraws=200)
-        assert np.isclose(stat, 2.961156) and (pval > .05) and \
-               (stderr > .05)
+        assert np.isclose(stat, 4.3801) and (pval < .05)
         stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 1, 2,
                                                       sigcluster.labels_,
                                                       AgglomerativeClustering,
@@ -329,9 +329,7 @@ class TestPvalModule(unittest.TestCase):
                                                       iso=False,
                                                       siginv=siginv1,
                                                       ndraws=200)
-        print("stat: {}, pval: {}. stderr: {}".format(stat, pval, stderr))
-        assert np.isclose(stat, 4.760857) and (pval > .05) and \
-               (stderr > .05)
+        assert np.isclose(stat, 3.042581) and (pval < .05)
 
 
 
