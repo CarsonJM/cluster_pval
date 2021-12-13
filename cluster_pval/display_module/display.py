@@ -41,7 +41,8 @@ def cluster_plot(clustered_df):
 
 
 def pca_var_per(clustered_df):
-    """This is a function to calculate percent explained variance of the first two principal components.
+    """
+    This is a function to calculate percent explained variance of the first two principal components.
 
     Parameters:
     :param clustered_df: pandas dataframe of clustered data
@@ -57,6 +58,5 @@ def pca_var_per(clustered_df):
     pca_2.fit_transform(clustered_df)
 
     # calculate percent explained variance and put into a dataframe
-    var_per_array = pca_2.explained_variance_ratio_
-    var_per = pd.DataFrame(data=var_per_array, columns=['% variance explained by PC1', '% variance explained by PC2'])
+    var_per = pca_2.explained_variance_ratio_
     return var_per
