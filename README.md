@@ -1,4 +1,4 @@
-[![Build Status](https://app.travis-ci.com/Cluster-Club/Cluster_PVal.svg?branch=master)](https://app.travis-ci.com/Cluster-Club/Cluster_PVal)
+![Build Status](https://github.com/Cluster-Club/cluster_pval/actions/workflows/python-app.yml/badge.svg)
 
 
 # [Open the webapp here!](https://cluster-pval.herokuapp.com/)
