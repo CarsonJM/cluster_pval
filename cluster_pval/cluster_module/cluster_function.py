@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" Implements cluster function for hierarchical and kmeans clustering of a
-pandas dataframe using Scikit designed to cluster RNA seq data, but could be
-applied to other types of datasets too.
+""" This module implements cluster function for hierarchical and kmeans 
+clustering of a pandas dataframe using Scikit designed to cluster RNA seq data,
+but could be applied to other types of datasets too.
 
 The user is requested to submit the dataset, the desired number of clusters,
 the cluster method and linkage method, which is standard set on ward.
