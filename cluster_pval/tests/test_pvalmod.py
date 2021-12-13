@@ -142,7 +142,8 @@ class TestPvalModule(unittest.TestCase):
         stat =  10.11433; pval = 0.006226331
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt', delimiter=' ',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
+            delimiter=' ',
             skip_header=1)
         k = 5
         positional_arguments = []
@@ -168,7 +169,7 @@ class TestPvalModule(unittest.TestCase):
         stat = 10.11433; stderr ~ .07; p > .3
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
@@ -210,7 +211,7 @@ class TestPvalModule(unittest.TestCase):
         and insignificant p values for the adjusted p value functions.
         """
         insig_cell_data = np.genfromtxt(
-            'tests/data_for_tests/600tcells.csv',
+            'cluster_pval/tests/data_for_tests/600tcells.csv',
             delimiter=',',skip_header=1)
         k = 3
         positional_arguments = []
@@ -223,7 +224,7 @@ class TestPvalModule(unittest.TestCase):
         # Using same siginv matrix as was used in R package (importing here
         # instead of recalculating)
         siginv1 = np.genfromtxt(
-            'tests/data_for_tests/SigInv1_600tcells.csv',
+            'cluster_pval/tests/data_for_tests/SigInv1_600tcells.csv',
             delimiter=',', skip_header=1)
         # wald tests negative control
         stat, pval = wald_test(insig_cell_data, 0, 1, insigcluster.labels_,
@@ -276,7 +277,8 @@ class TestPvalModule(unittest.TestCase):
         using R wald_test function:
         """
         sig_cell_data = np.genfromtxt(
-            'tests/data_for_tests/200tcells_200bcells_200memorycells.csv',
+            'cluster_pval/tests/data_for_tests'
+            '/200tcells_200bcells_200memorycells.csv',
             delimiter=',',skip_header=1)
         k = 3
         positional_arguments = []
@@ -289,7 +291,7 @@ class TestPvalModule(unittest.TestCase):
         # Using same siginv matrix as was used in R package (importing here
         # instead of recalculating)
         siginv1 = np.genfromtxt(
-            'tests/data_for_tests/SigInv2_200t_200b_200mem.csv',
+            'cluster_pval/tests/data_for_tests/SigInv2_200t_200b_200mem.csv',
             delimiter=',', skip_header=1)
         # wald tests negative control
         stat, pval = wald_test(sig_cell_data, 0, 1, sigcluster.labels_,
@@ -344,7 +346,7 @@ class TestPvalModule(unittest.TestCase):
         lot of variability here)
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
@@ -389,7 +391,7 @@ class TestPvalModule(unittest.TestCase):
         lot of variability here, these may be a bad stderr and pval thresholds)
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
@@ -436,7 +438,7 @@ class TestPvalModule(unittest.TestCase):
         lot of variability here, these may be a bad stderr and pval thresholds)
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
@@ -477,7 +479,7 @@ class TestPvalModule(unittest.TestCase):
         until you get runtime error
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
@@ -509,7 +511,7 @@ class TestPvalModule(unittest.TestCase):
         Running same code as test_penguin_gao_200 but ndraws = -1
         """
         penguin_data = np.genfromtxt(
-            'tests/data_for_tests/penguin_data_subset.txt',
+            'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ', skip_header=1)
         k = 5
         # set linkage to average to match R script
