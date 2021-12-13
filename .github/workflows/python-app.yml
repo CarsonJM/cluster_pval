@@ -34,10 +34,3 @@ jobs:
     
     - name: Test with unittest and generate .coverage data file
       run: coverage run -m unittest discover cluster_pval.tests
-      
-    - name: Create Coverage Badge
-      with:
-        auth: ${{ secrets.GIST_SECRET }}
-        gistID: 47267b6d2e613e3865dc02c47b5414e1
-        filename: test.json
-      run: genbadge coverage
