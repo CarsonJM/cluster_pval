@@ -50,29 +50,19 @@ def clustering(input_dataset, nr_of_clusters, cluster_method,
         raise ValueError("The cluster method should be a string.")
     else:
         pass
-<<<<<<< HEAD
 
-    if cluster_method == "KMeans":
-=======
-    
     if cluster_method == "k-means":
->>>>>>> c3b6db2419700fc352b8f90d829e997793dc079f
         cluster = KMeans(n_clusters=nr_of_clusters)
         dataset['cluster'] = cluster.fit_predict(input_dataset)
         ccl_fun = KMeans
     else:
         pass
-<<<<<<< HEAD
 
-    if cluster_method == "Hierarchical":
+
+    if cluster_method == "hierarchical":
         cluster = AgglomerativeClustering(n_clusters= nr_of_clusters,
                                           affinity='euclidean',
                                           linkage=linkage_method)
-=======
-    
-    if cluster_method == "hierarchical":
-        cluster = AgglomerativeClustering(n_clusters= nr_of_clusters, affinity='euclidean', linkage=linkage_method)
->>>>>>> c3b6db2419700fc352b8f90d829e997793dc079f
         dataset['cluster'] = cluster.fit_predict(dataset)
         ccl_fun = AgglomerativeClustering
 
