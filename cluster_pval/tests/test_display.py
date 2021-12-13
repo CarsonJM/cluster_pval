@@ -1,5 +1,6 @@
 """
-Tests for plotting function in display module
+Tests for plotting function and function calculating percent explained variance per principal component
+in display module
 """
 import unittest
 import pandas as pd
