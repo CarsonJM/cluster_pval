@@ -247,7 +247,6 @@ def output_cluster_df(status, orientation, min_col, max_col, n_clicks, linkage_m
             pass
 
         clustered_df, nr_of_clusters, ccl_fun, positional_arguments, keyword_arguments = cluster_module.clustering(df_col, num_clusters, cluster_method, linkage_method=linkage_method)
-        clustered_df['cluster'] = clustered_df['cluster'] + 1
 
         return clustered_df.to_json(orient='split')
 
@@ -259,6 +258,7 @@ def output_cluster_df(status, orientation, min_col, max_col, n_clicks, linkage_m
 def output_cluster_figure(clustered_json):
     if clustered_json is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
+        clustered_df['cluster'] = clustered_df['cluster'] + 1
         children = helper_module.cluster_figure(clustered_df)
     
         return children

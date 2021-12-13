@@ -344,8 +344,8 @@ def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
     x_np = x_data.to_numpy()
     cluster_labels_np = cluster_labels.to_numpy()
 
-    for k1 in range(1, len(set(cluster_labels))):
-         for k2 in range(k1+1, len(set(cluster_labels))):
+    for k1 in range(len(set(cluster_labels))):
+         for k2 in range(k1 + 1, len(set(cluster_labels))):
             comparison_list.append(str(k1) + ',' + str(k2))
             stat, wald_pvalue = pval_module.wald_test(x_np, k1, k2, cluster_labels_np, iso=iso, sig=sig, siginv=siginv)
             wald_pvalue_list.append(wald_pvalue)
@@ -358,7 +358,11 @@ def iterate_wald_test(x, cluster_labels, iso=True, sig=None, siginv=None):
 def wald_preview_clusterpval_status(wald_json):
     
     wald_df = pd.read_json(wald_json, orient='split')
-    
+    wald_df.loc[:,'comparison_1'] = wald_df['comparisons'].str.split(',', expand=True)[0].astype(int)
+    wald_df.loc[:,'comparison_2'] = wald_df['comparisons'].str.split(',', expand=True)[1].astype(int)
+    wald_df.loc[:,'comparisons'] = (wald_df['comparison_1'].astype(int) + 1).astype(str) + ',' + (wald_df['comparison_2'].astype(int) + 1).astype(str)
+    wald_df = wald_df.iloc[:, :-2]
+
     return html.Div([
         html.H6(['Wald p-value file preview: '], style={'font-weight':'bold'}),
         html.Div(''),
@@ -437,6 +441,10 @@ def iterate_stattest_clusters_approx(wald_pvalue_df, sig_threshold, x, cluster_l
 # function to display preview of clusterpval table
 def clusterpval_preview(clusterpval_json, sig_threshold, num_draws):
     clusterpval_df = pd.read_json(clusterpval_json, orient='split')
+    clusterpval_df.loc[:,'comparison_1'] = clusterpval_df['comparisons'].str.split(',', expand=True)[0].astype(int)
+    clusterpval_df.loc[:,'comparison_2'] = clusterpval_df['comparisons'].str.split(',', expand=True)[1].astype(int)
+    clusterpval_df.loc[:,'comparisons'] = (clusterpval_df['comparison_1'].astype(int) + 1).astype(str) + ',' + (clusterpval_df['comparison_2'].astype(int) + 1).astype(str)
+    clusterpval_df = clusterpval_df.iloc[:, :-2]
         
     return html.Div([
         html.H6(['Adjusted p-value file preview: '], style={'font-weight':'bold'}),
