@@ -189,10 +189,10 @@ class TestPvalModule(unittest.TestCase):
         passing = True
         assert np.isclose(stat, 10.11433)
         try:
-            assert np.isclose(stderr, 0.07, atol=.02)
+            assert np.isclose(stderr, 0.07, atol=.05)
         except AssertionError:
             passing = False
-            print("stderr is {}, should be within .02 of "
+            print("stderr is {}, should be within .05 of "
                   "0.07".format(stderr))
         try:
             assert pval > .3
