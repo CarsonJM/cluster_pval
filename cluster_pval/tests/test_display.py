@@ -42,12 +42,12 @@ class VarFunctionTest(unittest.TestCase):
         return
 
     def test_output_varper(self):
-        """Test to check that the output is in the form of a percentage"""
+        """Test to check that the output is in the form of a percentage, i.e., between 0 and 1"""
         test_array = np.array([[3, 1, 230, 0], [6, 2, 745, 0], [6, 6, 1080, 1], [4, 3, 495, 0], [2, 5, 260, 0]])
         test_df = pd.DataFrame(data=test_array, columns=[0, 1, 2, 'cluster'])
         varper_output = pca_var_per(test_df)
-        self.assertGreaterEqual(varper_output[0],0)
-        self.assertGreaterEqual(varper_output[1],0)
-        self.assertLessEqual(varper_output[0],1)
-        self.assertLessEqual(varper_output[1],1)
+        self.assertGreaterEqual(varper_output[0], 0)
+        self.assertGreaterEqual(varper_output[1], 0)
+        self.assertLessEqual(varper_output[0], 1)
+        self.assertLessEqual(varper_output[1], 1)
         return
