@@ -32,6 +32,7 @@ def clustering(input_dataset, nr_of_clusters, cluster_method,
     list: positional_arguments
     dictionary: keyword_arguments
     """
+    ccl_fun = None
     dataset = input_dataset
     check_value_type1 = isinstance(nr_of_clusters, int)
     if check_value_type1 is False:
