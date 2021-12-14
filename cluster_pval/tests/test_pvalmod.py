@@ -25,6 +25,7 @@ class TestPvalModule(unittest.TestCase):
         test_penguin_wald(self)
         test_penguin_gao_200(self)
         test_insig_cells(self)
+        test_sig_cells(self)
         test_penguin_gao_isoFalse_sigNone_siginvNone_200(self)
         test_penguin_gao_isoFalse_sigNone_siginvqxqndarray_200(self)
         test_penguin_gao_isoTrue_sig5_200(self)
@@ -35,7 +36,6 @@ class TestPvalModule(unittest.TestCase):
         test_iso_bool(self)
         test_iso_sig_siginv(self)
         test_k1k2(self)
-
     """
 
     def test_smoke_gao(self):
@@ -43,6 +43,7 @@ class TestPvalModule(unittest.TestCase):
         simple smoke test to make sure stattest_clusters_approx function runs
         :return: nothing
         """
+        passing = True
         x = np.array([[5, 3],
                       [10, 15],
                       [15, 12],
@@ -64,13 +65,14 @@ class TestPvalModule(unittest.TestCase):
         k2 = 1
         stattest_clusters_approx(x, k1, k2, cluster.labels_, cl_fun,
                                  positional_arguments, keyword_arguments)
-        self.assertTrue(True)
+        self.assertTrue(passing)
 
     def test_smoke_wald(self):
         """
         simple smoke test to make sure wald_test function runs
         :return: nothing
         """
+        passing = True
         x = np.array([[5, 3],
                       [10, 15],
                       [15, 12],
@@ -91,7 +93,7 @@ class TestPvalModule(unittest.TestCase):
         k1 = 0
         k2 = 1
         wald_test(x, k1, k2, cluster.labels_)
-        self.assertTrue(True)
+        self.assertTrue(passing)
 
     def test_penguin_gao_10000(self):
         """
@@ -141,6 +143,7 @@ class TestPvalModule(unittest.TestCase):
         using R wald_test function:
         stat =  10.11433; pval = 0.006226331
         """
+        passing = True
         penguin_data = np.genfromtxt(
             'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
             delimiter=' ',
@@ -157,7 +160,7 @@ class TestPvalModule(unittest.TestCase):
         stat, pval = wald_test(penguin_data, k1, k2, cluster.labels_)
         assert np.isclose(stat, 10.11433)
         assert np.isclose(pval, 0.006226331)
-        self.assertTrue(True)
+        self.assertTrue(passing)
 
     def test_penguin_gao_200(self):
         """
@@ -212,13 +215,13 @@ class TestPvalModule(unittest.TestCase):
         """
         insig_cell_data = np.genfromtxt(
             'cluster_pval/tests/data_for_tests/600tcells.csv',
-            delimiter=',',skip_header=1)
+            delimiter=',', skip_header=1)
         k = 3
         positional_arguments = []
         keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
                              'linkage': 'ward'}
         insigcluster = AgglomerativeClustering(*positional_arguments,
-                                          **keyword_arguments)
+                                               **keyword_arguments)
         insigcluster.fit_predict(insig_cell_data)
 
         # Using same siginv matrix as was used in R package (importing here
@@ -228,7 +231,7 @@ class TestPvalModule(unittest.TestCase):
             delimiter=',', skip_header=1)
         # wald tests negative control
         stat, pval = wald_test(insig_cell_data, 0, 1, insigcluster.labels_,
-                               iso=False, siginv = siginv1)
+                               iso=False, siginv=siginv1)
         assert np.isclose(stat, 4.054059) and np.isclose(pval, 0)
         stat, pval = wald_test(insig_cell_data, 0, 2, insigcluster.labels_,
                                iso=False, siginv=siginv1)
@@ -245,7 +248,7 @@ class TestPvalModule(unittest.TestCase):
                                                       keyword_arguments,
                                                       iso=False,
                                                       siginv=siginv1,
-                                                      ndraws = 200)
+                                                      ndraws=200)
         assert np.isclose(stat, 4.054059) and (pval > .05) and \
                (stderr > .05)
         stat, pval, stderr = stattest_clusters_approx(insig_cell_data, 0, 2,
@@ -279,13 +282,13 @@ class TestPvalModule(unittest.TestCase):
         sig_cell_data = np.genfromtxt(
             'cluster_pval/tests/data_for_tests'
             '/200tcells_200bcells_200memorycells.csv',
-            delimiter=',',skip_header=1)
+            delimiter=',', skip_header=1)
         k = 3
         positional_arguments = []
         keyword_arguments = {'n_clusters': k, 'affinity': 'euclidean',
                              'linkage': 'ward'}
         sigcluster = AgglomerativeClustering(*positional_arguments,
-                                          **keyword_arguments)
+                                             **keyword_arguments)
         sigcluster.fit_predict(sig_cell_data)
 
         # Using same siginv matrix as was used in R package (importing here
@@ -295,7 +298,7 @@ class TestPvalModule(unittest.TestCase):
             delimiter=',', skip_header=1)
         # wald tests negative control
         stat, pval = wald_test(sig_cell_data, 0, 1, sigcluster.labels_,
-                               iso=False, siginv = siginv1)
+                               iso=False, siginv=siginv1)
         assert np.isclose(stat, 4.274537) and np.isclose(pval, 0)
         stat, pval = wald_test(sig_cell_data, 0, 2, sigcluster.labels_,
                                iso=False, siginv=siginv1)
@@ -312,7 +315,7 @@ class TestPvalModule(unittest.TestCase):
                                                       keyword_arguments,
                                                       iso=False,
                                                       siginv=siginv1,
-                                                      ndraws = 200)
+                                                      ndraws=200)
         assert np.isclose(stat, 4.274537) and (pval < .05)
         stat, pval, stderr = stattest_clusters_approx(sig_cell_data, 0, 2,
                                                       sigcluster.labels_,
@@ -333,15 +336,13 @@ class TestPvalModule(unittest.TestCase):
                                                       ndraws=200)
         assert np.isclose(stat, 3.042581) and (pval < .05)
 
-
-
-    ###### Edge Tests
     def test_penguin_gao_isoFalse_sigNone_siginvNone_200(self):
         """
         One-shot test using Penguin data used in R tutorial with
         consistent parameters except iso is False, and ndraws=200 (to expedite
         function running while testing)
-        :return: same results as when using R stattest_clusters_approx function:
+        :return: Nothing so long as function returns same results as when
+        using R stattest_clusters_approx function:
         stat = 1.223436; stderr ~ .07; p > .3 (with ndraw=200 there can be a
         lot of variability here)
         """
@@ -379,13 +380,13 @@ class TestPvalModule(unittest.TestCase):
             print("pval is {}, should be greater than .3".format(pval))
         self.assertTrue(passing)
 
-
     def test_penguin_gao_isoFalse_sigNone_siginvqxqndarray_200(self):
         """
         One-shot test using Penguin data used in R tutorial with
         consistent parameters except iso is False, ndraws=200 (to expedite
         function running while testing), and siginv provided
-        :return: same results as when using R stattest_clusters_approx function
+        :return: Nothing so long as function gets same results as when using R
+        stattest_clusters_approx function
         with these parameters:
         stat = 8.134167; stderr < .009; p < .05 (with ndraw=200 there can be a
         lot of variability here, these may be a bad stderr and pval thresholds)
@@ -426,14 +427,13 @@ class TestPvalModule(unittest.TestCase):
             print("pval is {}, should be less than .05".format(pval))
         self.assertTrue(passing)
 
-
     def test_penguin_gao_isoTrue_sig5_200(self):
         """
         One-shot test using Penguin data used in R tutorial with
         consistent parameters except ndraws=200 (to expedite function running
         while testing), and sig is 5
-        :return: same results as when using R stattest_clusters_approx function
-        with these parameters:
+        :return: Nothing so long as function gets same results as when using
+        R stattest_clusters_approx function with these parameters:
         stat = 10.11433; stderr < .2; p > .1 (with ndraw=200 there can be a
         lot of variability here, these may be a bad stderr and pval thresholds)
         """
@@ -474,9 +474,10 @@ class TestPvalModule(unittest.TestCase):
 
     def test_gao_survives0(self):
         """
-        One shot test to make sure Runtime Error raised if survives == 0
+        Edge test to make sure Runtime Error raised if survives == 0
         Running same code as test_penguin_gao_200 but ndraws = 1, running
-        until you get runtime error
+        until it prompts runtime error
+        :return: Nothing so long as runtime error is raised
         """
         penguin_data = np.genfromtxt(
             'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
@@ -491,24 +492,22 @@ class TestPvalModule(unittest.TestCase):
         k1 = 0
         k2 = 1
         passing = False
-        for i in range(100):
+        for _ in range(100):
             try:
-                stat, pval, stderr = stattest_clusters_approx(penguin_data, k1, k2,
-                                                      cluster.labels_,
-                                                      AgglomerativeClustering,
-                                                      positional_arguments,
-                                                      keyword_arguments,
-                                                      ndraws=1)
+                stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_,
+                                         AgglomerativeClustering,
+                                         positional_arguments,
+                                         keyword_arguments, ndraws=1)
             except RuntimeError:
                 passing = True
                 break
         self.assertTrue(passing)
 
-####### EDGE TESTS ###########
     def test_gao_ndraws_valueerror(self):
         """
         Edge test to make sure ValueError raised if ndraws < 0
         Running same code as test_penguin_gao_200 but ndraws = -1
+        :return: Nothing so long as value error is raised
         """
         penguin_data = np.genfromtxt(
             'cluster_pval/tests/data_for_tests/penguin_data_subset.txt',
@@ -524,17 +523,17 @@ class TestPvalModule(unittest.TestCase):
         k2 = 1
         with self.assertRaises(ValueError):
             stattest_clusters_approx(penguin_data, k1, k2, cluster.labels_,
-                                                      AgglomerativeClustering,
-                                                      positional_arguments,
-                                                      keyword_arguments,
-                                                      ndraws=-1)
-
+                                     AgglomerativeClustering,
+                                     positional_arguments,
+                                     keyword_arguments,
+                                     ndraws=-1)
 
     def test_x(self):
         """
         Edge test to make sure ValueError raised when x is not 2d numpy array
         Tests first with 3d numpy array, then 1d numpy array, than 2d list,
         last checks if x contains any nans
+        :return: Nothing so long as value error is raised
         """
         # 3d numpy array
         x = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
@@ -552,15 +551,15 @@ class TestPvalModule(unittest.TestCase):
 
         # 2d list
         x = [[5, 3],
-              [10, 15],
-              [15, 12],
-              [24, 10],
-              [30, 30],
-              [85, 70],
-              [71, 80],
-              [60, 78],
-              [70, 55],
-              [80, 91], ]
+             [10, 15],
+             [15, 12],
+             [24, 10],
+             [30, 30],
+             [85, 70],
+             [71, 80],
+             [60, 78],
+             [70, 55],
+             [80, 91], ]
         cluster_labels = np.array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster_labels)
@@ -576,11 +575,9 @@ class TestPvalModule(unittest.TestCase):
                       [60, 78],
                       [70, 55],
                       [80, 91], ])
-        x[1,1] = np.nan
+        x[1, 1] = np.nan
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster_labels)
-
-
 
     def test_clusterlabels(self):
         """
@@ -588,6 +585,7 @@ class TestPvalModule(unittest.TestCase):
         Checks that ValueError is thrown if cluster_labels is too short,
         too long, not a numpy ndarray, not one-dimensional, or contains nans,
         or has fewer than 2 clusters.
+        :return: Nothing so long as value error is raised
         """
         x = np.array([[5, 3],
                       [10, 15],
@@ -611,7 +609,7 @@ class TestPvalModule(unittest.TestCase):
 
         # cluster_labels too short
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, np.array([1,0]))
+            wald_test(x, k1, k2, np.array([1, 0]))
         # cluster_labels too long
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, np.zeros(100))
@@ -620,13 +618,13 @@ class TestPvalModule(unittest.TestCase):
             wald_test(x, k1, k2, [1, 0, 1, 0, 1, 0, 1, 0, 1, 0])
         # cluster_labels not one dimensional
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, np.zeros((5,2)))
-        #cluster_labels contains nan values
+            wald_test(x, k1, k2, np.zeros((5, 2)))
+        # cluster_labels contains nan values
         cluster_labels = np.array([1., 0, 1, 0, 1, 0, 1, 0, 1, 0])
         cluster_labels[0] = np.nan
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster_labels)
-        #cluster_labesl not between 2 and n:
+        # cluster_labesl not between 2 and n:
         cluster_labels = np.zeros(10)
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster_labels)
@@ -634,6 +632,7 @@ class TestPvalModule(unittest.TestCase):
     def test_iso_bool(self):
         """
         Edge test to make sure ValueError raised when iso isn't boolean
+        :return: Nothing so long as value error is raised
         """
         x = np.array([[5, 3],
                       [10, 15],
@@ -662,6 +661,7 @@ class TestPvalModule(unittest.TestCase):
          Checks to make sure errors thrown if iso = True and siginv != None,
          if iso = False and sig != None, if sig is not a float or int,
          and if siginv is not a qxq ndarray.
+         :return: Nothing so long as value error is raised
         """
         x = np.array([[5, 3],
                       [10, 15],
@@ -686,28 +686,28 @@ class TestPvalModule(unittest.TestCase):
 
         # iso True siginv not None
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, cluster.labels_, iso=True, siginv = siginv)
+            wald_test(x, k1, k2, cluster.labels_, iso=True, siginv=siginv)
 
         # iso False, sig not None
         sig = 5
         with self.assertRaises(ValueError):
-            wald_test(x, k1, k2, cluster.labels_, iso=False, sig = sig)
+            wald_test(x, k1, k2, cluster.labels_, iso=False, sig=sig)
 
         # iso True, siginv None, sig not float or int
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster.labels_, iso=True, sig="Hello")
 
-        #iso False, sig None, siginv 2x2 list
+        # iso False, sig None, siginv 2x2 list
         thissiginv = [[1, 1], [1, 1]]
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
 
-        #iso False, sig None, siginv 1x1 numpy array (incorrect dimensions)
-        thissiginv = np.array([1,2])
+        # iso False, sig None, siginv 1x1 numpy array (incorrect dimensions)
+        thissiginv = np.array([1, 2])
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
 
-        #iso False, sig None, siginv 2x2x2 numpy array (incorrect dimensions)
+        # iso False, sig None, siginv 2x2x2 numpy array (incorrect dimensions)
         thissiginv = np.array([[1, 1, 1], [1, 1, 1]])
         with self.assertRaises(ValueError):
             wald_test(x, k1, k2, cluster.labels_, iso=False, siginv=thissiginv)
@@ -715,6 +715,7 @@ class TestPvalModule(unittest.TestCase):
     def test_k1k2(self):
         """
         Edge test to make sure k1 and k2 are ints
+        :return: Nothing so long as value error is raised
         """
         x = np.array([[5, 3],
                       [10, 15],
@@ -738,18 +739,18 @@ class TestPvalModule(unittest.TestCase):
         # k1 not an int
         with self.assertRaises(ValueError):
             stattest_clusters_approx(x, k1, 2, cluster.labels_, cl_fun,
-                                 positional_arguments, keyword_arguments)
+                                     positional_arguments, keyword_arguments)
         # k2 not an int
         with self.assertRaises(ValueError):
             stattest_clusters_approx(x, 1, k2, cluster.labels_, cl_fun,
-                                 positional_arguments, keyword_arguments)
+                                     positional_arguments, keyword_arguments)
         k1 = -1
         k2 = 2
         # k1 not between 0 and k-1
         with self.assertRaises(ValueError):
             stattest_clusters_approx(x, k1, 1, cluster.labels_, cl_fun,
-                                 positional_arguments, keyword_arguments)
+                                     positional_arguments, keyword_arguments)
         # k2 not between 0 and k-1
         with self.assertRaises(ValueError):
             stattest_clusters_approx(x, 0, k2, cluster.labels_, cl_fun,
-                                 positional_arguments, keyword_arguments)
+                                     positional_arguments, keyword_arguments)

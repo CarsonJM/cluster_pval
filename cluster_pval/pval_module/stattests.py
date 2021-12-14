@@ -12,6 +12,9 @@ Code for original function found:
 https://github.com/lucylgao/clusterpval-experiments
 clusterpval-experiments/real-data-code/util.R wald_test function
 Code written for: https://arxiv.org/abs/2012.02936
+
+Structures of functions were kept as similar to Gao's R implementation as
+possible.
 """
 
 import math
@@ -19,6 +22,7 @@ import scipy
 import scipy.stats
 import numpy as np
 import pandas as pd
+
 
 def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     """
@@ -40,31 +44,32 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     or np.ndarray with dimensions qxq
     """
     # check to make sure types of all parameters are as we expect
-    if not type(x) == np.ndarray:
+    if not isinstance(x, np.ndarray):
         raise ValueError("x must be 2-dimensional numpy array")
-    if not type(k1) == int or not type(k2) == int:
+    if not isinstance(k1, int) or not isinstance(k2, int):
         raise ValueError("k1 and k2 must be integers between 0 and K-1")
-    if not type(cluster_labels) == np.ndarray:
+    if not isinstance(cluster_labels, np.ndarray):
         raise ValueError("cluster_labels must be 1-dimensional numpy array")
-    if not type(iso) == bool:
+    if not isinstance(iso, bool):
         raise ValueError("iso must be 'True' or 'False'")
 
     # if iso is false and sig is not none, error out and say sig won't be
     # used if iso is false
-    if iso is False and not sig is None:
+    if iso is False and sig is not None:
         raise ValueError("If iso = False, sig will not be used. Reevaluate if "
                          "you want iso = True or want to set sig = None")
 
     # if iso is true and siginv is not none, error out and say siginv won't be
     # used if iso is true
-    if iso is True and not siginv is None:
+    if iso is True and siginv is not None:
         raise ValueError("If iso = True, siginv will not be used. Reevaluate "
                          "if you want iso = True or want to set siginv = None")
 
     # check types of sig and siginv
-    if not type(sig) == float and not type(sig) == int and not sig is None:
+    if not isinstance(sig, float) and not isinstance(sig, int) and \
+            sig is not None:
         raise ValueError("sig must be a float or an int scalar")
-    if not type(siginv) == np.ndarray and not siginv is None:
+    if not isinstance(siginv, np.ndarray) and siginv is not None:
         raise ValueError("siginv must be a qxq numpy array (considering x's "
                          "dimensions to be nxq)")
 
@@ -79,14 +84,14 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     rows, cols = x.shape
     n = rows
     q = cols
-    if not siginv is None:
+    if siginv is not None:
         try:
             siginv_rows, siginv_cols = siginv.shape
             if siginv_rows != q or siginv_cols != q:
-                raise ValueError( "siginv must be a qxq numpy array "
-                                  "(considering x's dimensions to be nxq)")
+                raise ValueError("siginv must be a qxq numpy array "
+                                 "(considering x's dimensions to be nxq)")
         except ValueError:
-            #this will happen if siginv is not 2-dimensional numpy array
+            # this will happen if siginv is not 2-dimensional numpy array
             raise ValueError("siginv must be a qxq numpy array (considering "
                              "x's dimensions to be nxq)")
 
@@ -104,33 +109,50 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
 
     # check to make sure K (number of clusters in cluster_labels) is between 2
     # and n
-    unique, counts = np.unique(cluster_labels, return_counts=True)
+    unique = np.unique(cluster_labels)
     k = len(unique)
     if k < 2 or k > n:
         raise ValueError("cluster_labels must contain at least 2 clusters and "
                          "no more clusters than there are datapoints in x")
 
-    #check to make sure k1 and k2 are between 0 and K-1
-    if k1 < 0 or k1 > (k-1) or k2 < 0 or k2 > (k-1):
+    # check to make sure k1 and k2 are between 0 and K-1
+    if k1 < 0 or k1 > (k - 1) or k2 < 0 or k2 > (k - 1):
         raise ValueError("k1 and k2 must be between 0 and k-1")
 
 
 def calculate_log_gamma_function(q):
-    if q/2 <= 0:
+    """
+    Helper function for stattest_clusters_approx. Calculates the log of the
+    gamma function of q/2. Finding the gamma function of large values causes a
+    float overflow that makes stattest_clusters_approx return np.nan for pval
+    and stderr. This function takes advantage of log rules and the fact that
+    the value of the gamma function for q/2 is immediately logged. The gamma
+    function for a positive integer n is (n-1)! . Log rules dictate that
+    log(3*2) = log(3) + log(2) . This function finds the sum of the log of each
+    factor of (n-1)! . This function CAN NOT WORK with non-integers,
+    which means if q is large enough that calculating the gamma function of
+    q/2 directly causes a float overflow, q must be even or the function will
+    error out.
+
+    :param q: int, the number of columns (dimensions) in the dataset
+    :return: float, the log of the gamma function of q/2.
+    """
+    if q / 2 <= 0:
         raise ValueError("Your dataset somehow has a negative number of "
                          "columns. Something has gone horribly wrong.")
-    #q/2 will always be a positive number
-    if scipy.special.gamma(q/2) != np.inf:
-        return math.log(scipy.special.gamma(q/2))
-    else:
-        if q % 2 != 0:
-            raise ValueError("Datasets with this many dimensions must have even "
-                             "number of cols")
-        nums_to_sum = []
-        for i in range(1, int(math.floor(q/2))):
-            nums_to_sum.append(math.log(i))
-        total = sum(nums_to_sum)
-        return total
+    # q/2 will always be a positive number
+    if scipy.special.gamma(q / 2) != np.inf:
+        return math.log(scipy.special.gamma(q / 2))
+
+    if q % 2 != 0:
+        raise ValueError(
+            "Datasets with this many dimensions must have even "
+            "number of cols")
+    nums_to_sum = []
+    for i in range(1, int(math.floor(q / 2))):
+        nums_to_sum.append(math.log(i))
+    total = sum(nums_to_sum)
+    return total
 
 
 def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
@@ -168,7 +190,7 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
 
     check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv)
 
-    #make sure ndraws >= 0
+    # make sure ndraws >= 0
     if ndraws < 0:
         raise ValueError("ndraws must be >= 0")
 
@@ -178,10 +200,10 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     points_per_cluster = dict(zip(unique, counts))
     n1 = points_per_cluster[k1]
     n2 = points_per_cluster[k2]
-    k1colmeans = np.mean(x[cluster_labels == k1,:], axis=0)
-    k2colmeans = np.mean(x[cluster_labels == k2,:], axis=0)
+    k1colmeans = np.mean(x[cluster_labels == k1, :], axis=0)
+    k2colmeans = np.mean(x[cluster_labels == k2, :], axis=0)
     diff_means = k1colmeans - k2colmeans
-    prop_k2 = n2/(n1+n2)
+    prop_k2 = n2 / (n1 + n2)
 
     stat, scale_factor = calculate_scale_factor_and_stat(x, k1, k2,
                                                          cluster_labels, iso,
@@ -190,54 +212,56 @@ def stattest_clusters_approx(x, k1, k2, cluster_labels, cl_fun,
     scale_factor = math.sqrt(scale_factor)
     log_survives = np.empty(ndraws)
     log_survives[:] = np.NaN
-    phi = np.random.normal(size=ndraws)*scale_factor + stat
-    k1_constant = prop_k2*diff_means/stat
-    k2_constant = (prop_k2 - 1)*diff_means/stat
-    orig_k1 = np.transpose(x[cluster_labels == k1,:])
+    phi = np.random.normal(size=ndraws) * scale_factor + stat
+    k1_constant = prop_k2 * diff_means / stat
+    k2_constant = (prop_k2 - 1) * diff_means / stat
+    orig_k1 = np.transpose(x[cluster_labels == k1, :])
     orig_k2 = np.transpose(x[cluster_labels == k2, :])
 
     for j in range(ndraws):
         if phi[j] < 0:
             continue
-        #compute the perturbed data set
-        Xphi = np.copy(x)
-        Xphi[cluster_labels == k1, :] = np.transpose(orig_k1[:]) + ((phi[j] - stat) * k1_constant)
-        Xphi[cluster_labels == k2, :] = np.transpose(orig_k2[:]) + ((phi[j] - stat) * k2_constant)
-        #recluster the perturbed data set
-        cl_Xphi = cl_fun(*positional_arguments, **keyword_arguments)
-        cl_Xphi.fit_predict(Xphi)
+        # compute the perturbed data set
+        xphi = np.copy(x)
+        xphi[cluster_labels == k1, :] = np.transpose(orig_k1[:]) + (
+                    (phi[j] - stat) * k1_constant)
+        xphi[cluster_labels == k2, :] = np.transpose(orig_k2[:]) + (
+                    (phi[j] - stat) * k2_constant)
+        # recluster the perturbed data set
+        cl_xphi = cl_fun(*positional_arguments, **keyword_arguments)
+        cl_xphi.fit_predict(xphi)
 
-        if(preserve_cl(cluster_labels, cl_Xphi.labels_, k1, k2)):
-            first_term = -((phi[j]/scale_factor)**2)/2
-            second_term = (q-1)*math.log(phi[j]/scale_factor)
-            third_term = (q/2 -1)*math.log(2)
+        if preserve_cl(cluster_labels, cl_xphi.labels_, k1, k2):
+            first_term = -((phi[j] / scale_factor) ** 2) / 2
+            second_term = (q - 1) * math.log(phi[j] / scale_factor)
+            third_term = (q / 2 - 1) * math.log(2)
             fourth_term = calculate_log_gamma_function(q)
             fifth_term = math.log(scale_factor)
-            sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat, scale=scale_factor)
-            log_survives[j] = (first_term + second_term - third_term - fourth_term - fifth_term - sixth_term)
+            sixth_term = scipy.stats.norm.logpdf(phi[j], loc=stat,
+                                                 scale=scale_factor)
+            log_survives[j] = (first_term + second_term - third_term -
+                               fourth_term - fifth_term - sixth_term)
 
-
-    #trim down to only survives
+    # trim down to only survives
     survives_indexes = np.where(~np.isnan(log_survives))
     phi = phi[survives_indexes]
     log_survives = log_survives[~np.isnan(log_survives)]
     survives = len(log_survives)
 
-    #raise runtime error if nothing survives (test by running with 1 until it
+    # raise runtime error if nothing survives (test by running with 1 until it
     # hits)
     if survives == 0:
         raise RuntimeError("Oops - we didn't generate any samples that "
                            "preserved the clusters! Try re-running with a "
                            "larger value of ndraws")
 
-
-    #approximate p values
+    # approximate p values
     with np.errstate(invalid="ignore"):
         log_survives_shift = log_survives - max(log_survives)
-    props = np.exp(log_survives_shift)/sum(np.exp(log_survives_shift))
+    props = np.exp(log_survives_shift) / sum(np.exp(log_survives_shift))
     pval = sum(props[phi >= stat])
-    var_pval = (1-pval)**2 * sum(props[phi >= stat]**2) + pval**2 * \
-               sum(props[phi<stat]**2)
+    var_pval = ((1 - pval) ** 2 * sum(props[phi >= stat] ** 2) + pval ** 2 *
+                sum(props[phi < stat] ** 2))
     stderr = math.sqrt(var_pval)
 
     return stat, pval, stderr
@@ -271,8 +295,10 @@ def wald_test(x, k1, k2, cluster_labels, iso=True, sig=None, siginv=None):
     return stat, pval
 
 
-def calculate_scale_factor_and_stat(x, k1, k2, cluster_labels, iso, sig, siginv):
-    """ Calculates scale factor and test statistic given iso and sig
+def calculate_scale_factor_and_stat(x, k1, k2, cluster_labels, iso, sig,
+                                    siginv):
+    """ Calculates scale factor and test statistic for both p value
+    calculation methods given iso and sig
     :param x: n by q matrix (np.array), containing numeric data
     :param k1: integer, selects a cluster to test
     :param k2: integer, selects a cluster to test
@@ -338,8 +364,10 @@ def preserve_cl(cl, cl_phi, k1, k2):
     :param k2: integer, intex of cluster involved in test
     :return: True if Ck, Ck' in (C(x'(phi))), False otherwise
     """
-    df = pd.DataFrame({'cl':cl, 'cl_phi':cl_phi})
+    df = pd.DataFrame({'cl': cl, 'cl_phi': cl_phi})
     tab = pd.crosstab(index=df['cl'], columns=df['cl_phi'])
-    k1_in = (sum(tab.iloc[k1, :] != 0) == 1) and (sum(tab.iloc[:, k1] != 0) == 1)
-    k2_in = (sum(tab.iloc[k2, :] != 0) == 1) and (sum(tab.iloc[:, k2] != 0) == 1)
+    k1_in = (sum(tab.iloc[k1, :] != 0) == 1) and (
+                sum(tab.iloc[:, k1] != 0) == 1)
+    k2_in = (sum(tab.iloc[k2, :] != 0) == 1) and (
+                sum(tab.iloc[:, k2] != 0) == 1)
     return k1_in and k2_in
