@@ -35,7 +35,7 @@ jobs:
     - name: Test with unittest and generate .coverage data file
       run: coverage run -m unittest discover cluster_pval.tests
 
-    - name: Make coverage .xml file and coveradge badge
+    - name: Make coverage .xml file and coverage badge
       run: |
         coverage xml
         genbadge coverage -i coverage.xml
@@ -44,3 +44,19 @@ jobs:
       run : |
         mv coverage-badge.svg doc/images_for_README
       
+    - name: Setup git config
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+      
+    - name: Commit
+      run: |
+        git add doc/images_for_README/coverage-badge.svg
+        git commit -m "Updating Percent Coverage Button"
+      
+    - name: Push
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.github_token }}
+        branch: ${{ github.ref }}
+        
