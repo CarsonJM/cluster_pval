@@ -46,6 +46,8 @@ def check_inputs(x, k1, k2, cluster_labels, iso, sig, siginv):
     # check to make sure types of all parameters are as we expect
     if not isinstance(x, np.ndarray):
         raise ValueError("x must be 2-dimensional numpy array")
+    if isinstance(k1, bool) or isinstance(k2, bool):
+        raise ValueError("k1 and k2 must be integers between 0 and k-1")
     if not isinstance(k1, int) or not isinstance(k2, int):
         raise ValueError("k1 and k2 must be integers between 0 and K-1")
     if not isinstance(cluster_labels, np.ndarray):
