@@ -19,61 +19,67 @@ Envisioned users include researchers that work with scRNAseq datasets, statistic
 
 
 ## Installation and Requirements
-This package is not pip installable. To install please git clone the directory. 
+This package is not pip installable. To use this tool, please either use the [webapp](https://cluster-pval.herokuapp.com/) or git clone the directory.
 
-This package requires the packages numpy, pandas, scikit-learn, 
-scipy, umap-learn, and plotly.
+Required packages can be found in requirements.txt
 
 ## Directory Layout
 
 ```bash
 
+cluster_pval
+├── CODE_OF_CONDUCT.md
+├── LICENSE
+├── Procfile
+├── README.md
 ├── app.py
 ├── cluster_pval
-│   ├── cluster_module
-│   │   ├── cluster_function.py
-│   │   ├── __init__.py
-│   ├── data_module
-│   │   ├── data_module.py
-│   │   └── __init__.py
-│   ├── display_module
-│   │   ├── display.py
-│   │   ├── __init__.py
-│   ├── helper_module
-│   │   ├── helper_functions.py
-│   │   ├── __init__.py
+│   ├── README.md
 │   ├── __init__.py
+│   ├── cluster_module
+│   │   ├── __init__.py
+│   │   └── cluster_function.py
+│   ├── data_module
+│   │   ├── __init__.py
+│   │   └── data_module.py
+│   ├── display_module
+│   │   ├── __init__.py
+│   │   └── display.py
+│   ├── helper_module
+│   │   ├── __init__.py
+│   │   └── helper_functions.py
 │   ├── pval_module
 │   │   ├── __init__.py
-│   │   ├── stattests.py
-│   │   └── trunc_sets.py
+│   │   └── stattests.py
 │   └── tests
+│       ├── __init__.py
 │       ├── data_for_tests
 │       │   ├── 200tcells_200bcells_200memorycells.csv
 │       │   ├── 600tcells.csv
 │       │   ├── GSE158761_matrix.mtx.gz
-│       │   ├── out.csv
+│       │   ├── README.md
+│       │   ├── SigInv1_600tcells.csv
+│       │   ├── SigInv2_200t_200b_200mem.csv
 │       │   ├── penguin_data_subset.txt
 │       │   ├── penguin_data_subset_with_species.csv
-│       │   ├── penguin_data_subset_with_species.txt
-│       │   └── SigInv1.csv
-│       ├── data_module_test.py
-│       ├── __init__.py
+│       │   └── penguin_data_subset_with_species.txt
 │       ├── test_cluster_module.py
+│       ├── test_datamod.py
 │       ├── test_display.py
 │       └── test_pvalmod.py
 ├── doc
 │   ├── Component_Diagram.png
-│   ├── images_for_Readme
-│   │   ├── GUI_Home_Page.PNG
-│   │   └── Open_File_Navigator.PNG
+│   ├── README.md
+│   ├── USER_STORIES.md
 │   ├── USE_CASES.md
-│   └── USER_STORIES.md
-├── LICENSE
-├── Procfile
-├── README.md
+│   └── images_for_README
+│       ├── GUI_Home_Page.PNG
+│       ├── Open_File_Navigator.PNG
+│       ├── coverage-badge.svg
+│       └── pea_logo.png
 └── requirements.txt
 
+10 directories, 40 files
 ```
 
 Base Directory: Contains files related to git, travis (for continuous 
