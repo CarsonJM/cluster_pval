@@ -8,14 +8,13 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
+    
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
+    
     - name: Set up Python 3.10
       uses: actions/setup-python@v2
       with:
@@ -44,10 +43,10 @@ jobs:
         genbadge coverage -i coverage.xml
       
     - name: Move coverage-badge.svg to cluster_pval/doc/images_for_README/
-      run : |
+      run: |
         mv coverage-badge.svg doc/images_for_README
       
-   - name: Setup git config
+    - name: Setup git config
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "<>"
