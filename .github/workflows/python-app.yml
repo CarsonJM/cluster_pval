@@ -47,6 +47,11 @@ jobs:
       run : |
         mv coverage-badge.svg doc/images_for_README
       
+   - name: Setup git config
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+      
     - name: Verify Changed Files
       uses: tj-actions/verify-changed-files@v6
       id: changed_files
