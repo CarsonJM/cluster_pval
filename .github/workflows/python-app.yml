@@ -44,17 +44,25 @@ jobs:
       run : |
         mv coverage-badge.svg doc/images_for_README
       
-    - name: Setup git config
-      run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
+    #- name: Setup git config
+    #  run: |
+    #    git config user.name "GitHub Actions Bot"
+    #    git config user.email "<>"
       
+    - name: Verify Changed Files
+        uses: tj-actions/verify-changed-files@v6
+        id: changed_files
+        with:
+          files: doc/images_for_README/coverage-badge.svg
+          
     - name: Commit
+      if: steps.changed_files.outputs.files_changed == 'true'
       run: |
         git add doc/images_for_README/coverage-badge.svg
         git commit -m "Updating Percent Coverage Button"
       
     - name: Push
+      if: steps.changed_files.outputs.files_changed == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.github_token }}
