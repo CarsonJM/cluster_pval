@@ -120,7 +120,8 @@ To open from your terminal:
 
 Or open directly from link in README
 
-![image](https://user-images.githubusercontent.com/91644573/146061341-c8a438f8-3fc9-41c0-a716-061dde880b2b.png)
+![image](https://user-images.githubusercontent.com/91644573/146062855-d2d5733e-139e-42b5-afd2-1c87d1b6e513.png)
+
 4. Drag or upload the dataset (in CSV format) in the web app
 5. You'll see a preview of your data, and you will be requested to submit the following data:
 	- Organization of samples (rows vs. columns)
