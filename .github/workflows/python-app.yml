@@ -50,10 +50,10 @@ jobs:
     #    git config user.email "<>"
       
     - name: Verify Changed Files
-        uses: tj-actions/verify-changed-files@v6
-        id: changed_files
-        with:
-          files: doc/images_for_README/coverage-badge.svg
+      uses: tj-actions/verify-changed-files@v6
+      id: changed_files
+      with:
+        files: doc/images_for_README/coverage-badge.svg
           
     - name: Commit
       if: steps.changed_files.outputs.files_changed == 'true'
