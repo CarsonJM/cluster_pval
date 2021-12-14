@@ -434,7 +434,7 @@ class TestPvalModule(unittest.TestCase):
         while testing), and sig is 5
         :return: same results as when using R stattest_clusters_approx function
         with these parameters:
-        stat = 10.11433; stderr < .1; p > .1 (with ndraw=200 there can be a
+        stat = 10.11433; stderr < .2; p > .1 (with ndraw=200 there can be a
         lot of variability here, these may be a bad stderr and pval thresholds)
         """
         penguin_data = np.genfromtxt(
@@ -460,11 +460,11 @@ class TestPvalModule(unittest.TestCase):
         passing = True
         assert np.isclose(stat, 10.11433)
         try:
-            assert stderr < .1
+            assert stderr < .2
         except AssertionError:
             passing = False
             print("stderr is {}, should be less than "
-                  "0.1".format(stderr))
+                  "0.2".format(stderr))
         try:
             assert pval > .1
         except AssertionError:
