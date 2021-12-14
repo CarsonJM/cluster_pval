@@ -34,3 +34,13 @@ jobs:
     
     - name: Test with unittest and generate .coverage data file
       run: coverage run -m unittest discover cluster_pval.tests
+
+    - name: Make coverage .xml file and coveradge badge
+      run: |
+        coverage xml
+        genbadge coverage -i coverage.xml
+      
+    - name: Move coverage-badge.svg to cluster_pval/doc/images_for_README/
+      run : |
+        mv coverage-badge doc/images_for_README
+      
