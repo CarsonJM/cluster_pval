@@ -42,5 +42,5 @@ jobs:
       
     - name: Move coverage-badge.svg to cluster_pval/doc/images_for_README/
       run : |
-        mv coverage-badge doc/images_for_README
+        mv coverage-badge.svg doc/images_for_README
       
