@@ -1,5 +1,4 @@
-![Build Status](https://github.com/Cluster-Club/cluster_pval/actions/workflows/python-app.yml/badge.svg)
-![Coverage Badge](doc/images_for_README/pea_logo.png)
+![Build Status](https://github.com/Cluster-Club/cluster_pval/actions/workflows/python-app.yml/badge.svg) ![Coverage Badge](doc/images_for_README/pea_logo.png)
 
 
 # [Open the webapp here!](https://cluster-pval.herokuapp.com/)
