@@ -15,7 +15,7 @@ class PlotFunctionTest(unittest.TestCase):
     def test_smoke_clusterplot(self):
         """Smoke test to make sure function runs"""
         test_array = np.array([[3, 1, 230, 0], [6, 2, 745, 0], [6, 6, 1080, 1], [4, 3, 495, 0], [2, 5, 260, 0]])
-        test_df = pd.DataFrame(data=test_array, columns=[0, 1, 2, 'cluster'])
+        test_df = pd.DataFrame(data=test_array, columns=['0', '1', '2', 'cluster'])
         cluster_plot(test_df)
         return
 
@@ -31,7 +31,7 @@ class VarFunctionTest(unittest.TestCase):
     def test_smoke_varper(self):
         """Smoke test to make sure function runs"""
         test_array = np.array([[3, 1, 230, 0], [6, 2, 745, 0], [6, 6, 1080, 1], [4, 3, 495, 0], [2, 5, 260, 0]])
-        test_df = pd.DataFrame(data=test_array, columns=[0, 1, 2, 'cluster'])
+        test_df = pd.DataFrame(data=test_array, columns=['0', '1', '2', 'cluster'])
         pca_var_per(test_df)
         return
 
@@ -45,7 +45,7 @@ class VarFunctionTest(unittest.TestCase):
     def test_output_varper(self):
         """Test to check that the output is in the form of a percentage, i.e., between 0 and 1"""
         test_array = np.array([[3, 1, 230, 0], [6, 2, 745, 0], [6, 6, 1080, 1], [4, 3, 495, 0], [2, 5, 260, 0]])
-        test_df = pd.DataFrame(data=test_array, columns=[0, 1, 2, 'cluster'])
+        test_df = pd.DataFrame(data=test_array, columns=['0', '1', '2', 'cluster'])
         varper_output = pca_var_per(test_df)
         self.assertGreaterEqual(varper_output[0], 0)
         self.assertGreaterEqual(varper_output[1], 0)
