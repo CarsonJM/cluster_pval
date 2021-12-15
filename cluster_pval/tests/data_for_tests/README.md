@@ -13,7 +13,8 @@ Contains expression of top 500 genes from 600 memory t cells. Clustering
 these data into 3 clusters should not yield statistically significant clusters.
 
 **GSE158761_matric_mtx_gz** - Arabidopsis scRNAseq data with genes in 
-columns, used to test data_module.
+columns, used to test data_module. Data generated in 
+[Gala et al 2021](https://academic.oup.com/plcell/article-abstract/33/7/2197/6209741?redirectedFrom=fulltext)
 
 **SigInv1_600tcells.csv** -  SigInv matrix used in 
 [Gao et al 2021](https://arxiv.org/pdf/2012.02936.pdf) when running 
