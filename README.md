@@ -110,7 +110,7 @@ unit tests.
 
 ## Usage
 
-To open from your terminal:
+To open from your terminal and run locally:
 1. Import the Cluster_Pval package by:
 	- opening your terminal
 	- assuming that  Git is installed, type: Git Clone "[link to repository]"
