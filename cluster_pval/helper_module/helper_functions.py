@@ -135,6 +135,8 @@ def file_preview_req_num_clusters_req_cluster_method(orientation, contents, file
                 # and request input of the user
                 html.Div("Input columns containing data to be clustered",
                 style={'font-weight':'bold'}),
+                html.Div("For large datasets the number of columns must be even",
+                style={'font-style':'italic'}),
                 html.Br(),
                 html.Div("Leaving empty will select the entire dataframe. ",
                 style={'font-style': 'italic'}),
