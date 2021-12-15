@@ -19,7 +19,7 @@ Envisioned users include researchers that work with scRNAseq datasets, statistic
 
 
 ## Installation and Requirements
-This package is not pip installable. To use this tool, please either use the [webapp](https://cluster-pval.herokuapp.com/) or git clone the directory.
+This package is not pip installable. To use this tool, please either use the [webapp](https://cluster-pval.herokuapp.com/) or git clone the directory. The webapp will time out if clustering or p-value calculation takes more than 30 seconds, so if you are clustering a large dataset or you would like to calculate the adjusted p-value with a large number of Monte-Carlo draws, please git clone the directory and run the app locally. See instructions in **Usage** section of README below.
 
 Required packages can be found in requirements.txt
 
