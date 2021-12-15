@@ -118,9 +118,9 @@ To open from your terminal and run locally (which you should do if working with 
 1. Import the Cluster_Pval package by:
 	- opening your terminal
 	- assuming that  Git is installed, type: `Git Clone "[link to repository]"`
-2. While being in the main repository directory, type: `pip install -r requirements.txt`
+2. While being in the main repository directory, (`cd cluster_pval`), type: `pip install -r requirements.txt`
    or, if using conda, create a new environment for running the app by typing: 
-   `conda create -n cluster_pval python=3.9' and then 'pip install -r requirements.txt'
+   `conda create -n cluster_pval python=3.9` and then `pip install -r requirements.txt`
 3. Open the web app by typing in your terminal: python app.py
 4. Use the link that is showed in the Terminal to go to the webapp
 
