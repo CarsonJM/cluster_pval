@@ -138,7 +138,7 @@ Or open directly from link in README
 	- Clustering method; choose to apply hierarchical of K-means clustering
 	- linkage method
 
-![image](https://user-images.githubusercontent.com/91644573/146061804-6020e1d6-a292-4e6d-8e8f-bd727e17947c.png)
+![image](https://user-images.githubusercontent.com/91644573/146283192-420bb6d5-217b-4fad-9d8a-2dfbf65bbc37.png)
 
 7. Click on "Press to submit clustering"
 8. You will a cluster visualization with the option to download the figure
@@ -153,7 +153,7 @@ Or open directly from link in README
 11. You will see the following results:
 	- A preview of the wald p-value file
 	- A preview of the adjusted p-value file 
-![image](https://user-images.githubusercontent.com/91644573/146062599-1136306c-1bbd-4ca8-8bf9-ad2a2641235d.png)
+![image](https://user-images.githubusercontent.com/91644573/146283251-3c89e0fc-ea3f-4538-be92-aa31c739e8ac.png)
 
 	
 ## Contributing
