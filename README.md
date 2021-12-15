@@ -11,7 +11,7 @@
 
 # cluster_pval
 
-Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error
+Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error.
 
 This tool calculates the difference in means between RNAseq clusters and reports the p-value calculated using the wald test and the method proposed in L. Gao, J. Bien & D. Witten [2021]. Users upload scRNAseq datasets and input metadata about the datasets. The tool then uses hierarchical clustering to assign each cell to a cluster and calculates both p values for the difference in means between each cluster pair.
 
