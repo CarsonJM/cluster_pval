@@ -110,20 +110,26 @@ unit tests.
 
 ## Usage
 
-To open from your terminal and run locally:
+**NOTE**: If using a large dataset (50+ columns), the dataset MUST have an even number of 
+columns (dimensions). This is a quirk that currently allows us to avoid overflowing a float.
+We are working on addressing this issue.
+
+To open from your terminal and run locally (which you should do if working with a large dataset):
 1. Import the Cluster_Pval package by:
 	- opening your terminal
-	- assuming that  Git is installed, type: Git Clone "[link to repository]"
-2. While being in the main repository directory, 
-   open the web app by typing in your terminal: python app.py
-3. Use the link that is showed in the Terminal to go to the webapp
+	- assuming that  Git is installed, type: `Git Clone "[link to repository]"`
+2. While being in the main repository directory, type: `pip install -r requirements.txt`
+   or, if using conda, create a new environment for running the app by typing: 
+   `conda create -n cluster_pval python=3.9' and then 'pip install -r requirements.txt'
+3. Open the web app by typing in your terminal: python app.py
+4. Use the link that is showed in the Terminal to go to the webapp
 
 Or open directly from link in README
 
 ![image](https://user-images.githubusercontent.com/91644573/146062855-d2d5733e-139e-42b5-afd2-1c87d1b6e513.png)
 
-4. Drag or upload the dataset (in CSV format) in the web app
-5. You'll see a preview of your data, and you will be requested to submit the following data:
+5. Drag or upload the dataset (in CSV format) in the web app
+6. You'll see a preview of your data, and you will be requested to submit the following data:
 	- Organization of samples (rows vs. columns)
 	- Data information; the first and last columns containing data to be clustered. 
 		Please note that this is in zero-index format, 
@@ -134,11 +140,11 @@ Or open directly from link in README
 
 ![image](https://user-images.githubusercontent.com/91644573/146061804-6020e1d6-a292-4e6d-8e8f-bd727e17947c.png)
 
-6. Click on "Press to submit clustering"
-7. You will a cluster visualization with the option to download the figure
+7. Click on "Press to submit clustering"
+8. You will a cluster visualization with the option to download the figure
  ![image](https://user-images.githubusercontent.com/91644573/146061937-7cb3c3ac-0a5a-4951-87e5-c2d3915c5338.png)
 
-8. You will be requested to submit the following information for the calculation of the p-value:
+9. You will be requested to submit the following information for the calculation of the p-value:
 	- A threshold for significance
 	- An input number of draws to be used in calculating adjusted p-value
 ![image](https://user-images.githubusercontent.com/91644573/146062313-6404e2e4-45ff-4f2d-93bf-dda89aadb8a4.png)
