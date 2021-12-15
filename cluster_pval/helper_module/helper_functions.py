@@ -380,7 +380,7 @@ def iterate_wald_test(data_df, cluster_labels):
         for k_2 in range(k_1 + 1, len(set(cluster_labels))):
             comparison_list.append(str(k_1) + ',' + str(k_2))
             _, wald_pvalue = pval_module.wald_test(x_np, k_1, k_2,
-            cluster_labels_np, iso=iso, sig=sig, siginv=siginv)
+            cluster_labels_np)
             wald_pvalue_list.append(wald_pvalue)
 
     pvalue_df = pd.DataFrame({'comparisons':comparison_list, 'wald_pvalue':wald_pvalue_list})

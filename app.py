@@ -228,7 +228,7 @@ orientation, contents, filename):
 def output_req_linkage(num_clusters, cluster_method):
     """A"""
     if num_clusters is not None and cluster_method is not None:
-        children = helper_module.req_linkage_method(num_clusters, cluster_method)
+        children = helper_module.req_linkage_method(cluster_method)
 
         return children
 
@@ -365,10 +365,8 @@ def output_cluster_figure(clustered_json):
 
 # request significance threshold and num draws if appropriate
 @app.callback(Output('output-req-threshold-req-num-draws', 'children'),
-              Input('output-cluster-figure', 'children'),
-              State('cluster-method', 'value'),
-              State('linkage-method', 'value'))
-def output_req_threshold_req_num_draws(clustered_figure, cluster_method, linkage_method):
+              Input('output-cluster-figure', 'children'))
+def output_req_threshold_req_num_draws(clustered_figure):
     """
     Function to request user input of p-value threshold
     and the number of draws to use
@@ -383,17 +381,14 @@ def output_req_threshold_req_num_draws(clustered_figure, cluster_method, linkage
     request user input of p-value threshold and number of draws
     """
     if clustered_figure is not None:
-        children = helper_module.req_threshold_req_num_draws(clustered_figure,
-        cluster_method, linkage_method)
+        children = helper_module.req_threshold_req_num_draws()
         return children
 
 
 # once image is generated, return wald pvalue status DONE
 @app.callback(Output('output-wald-status', 'children'),
               Input('p-value-button', 'n_clicks'),
-              Input('sig-threshold', 'value'),
-              State('num-draws', 'value'),
-              State('output-cluster-figure', 'children'))
+              Input('sig-threshold', 'value'))
 def output_wald_status(n_clicks, sig_threshold):
     """
     Function to display status of wald p-value calculation
@@ -435,8 +430,7 @@ def output_wald_df(status, clustered_json):
     """
     if status is not None:
         clustered_df = pd.read_json(clustered_json, orient='split')
-        wald_df = helper_module.iterate_wald_test(clustered_df, clustered_df['cluster'],
-        iso=True, sig=None, siginv=None)
+        wald_df = helper_module.iterate_wald_test(clustered_df, clustered_df['cluster'])
 
         return wald_df.to_json(orient='split')
 
