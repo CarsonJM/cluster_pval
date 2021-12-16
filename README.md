@@ -26,7 +26,6 @@ Required packages can be found in requirements.txt
 ## Directory Layout
 
 ```bash
-
 cluster_pval
 ├── CODE_OF_CONDUCT.md
 ├── LICENSE
@@ -72,14 +71,13 @@ cluster_pval
 │   ├── README.md
 │   ├── USER_STORIES.md
 │   ├── USE_CASES.md
+│   ├── final_presentation.pdf
 │   └── images_for_README
-│       ├── GUI_Home_Page.PNG
-│       ├── Open_File_Navigator.PNG
 │       ├── coverage-badge.svg
 │       └── pea_logo.png
 └── requirements.txt
 
-10 directories, 40 files
+10 directories, 39 files
 ```
 
 Base Directory: Contains files related to git, travis (for continuous 
