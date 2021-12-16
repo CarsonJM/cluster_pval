@@ -11,7 +11,7 @@
 
 # cluster_pval
 
-Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error
+Clustering is a common means of sorting cells in RNAseq datasets into different cell types. Tests for differences in means between cell type clusters do not take into account the fact that the clusters were inferred from the data, this “double dipping” inflates Type 1 error. This is considered one of the greatest challenges currently facing single cell data science. Gao et al (2021) proposed a new method for calculating p values when measuring differences in means between clusters that controls for type 1 error.
 
 This tool calculates the difference in means between RNAseq clusters and reports the p-value calculated using the wald test and the method proposed in L. Gao, J. Bien & D. Witten [2021]. Users upload scRNAseq datasets and input metadata about the datasets. The tool then uses hierarchical clustering to assign each cell to a cluster and calculates both p values for the difference in means between each cluster pair.
 
@@ -110,20 +110,26 @@ unit tests.
 
 ## Usage
 
-To open from your terminal and run locally:
+**NOTE**: If using a large dataset (50+ columns), the dataset MUST have an even number of 
+columns (dimensions). This is a quirk that currently allows us to avoid overflowing a float.
+We are working on addressing this issue.
+
+To open from your terminal and run locally (which you should do if working with a large dataset):
 1. Import the Cluster_Pval package by:
 	- opening your terminal
-	- assuming that  Git is installed, type: Git Clone "[link to repository]"
-2. While being in the main repository directory, 
-   open the web app by typing in your terminal: python app.py
-3. Use the link that is showed in the Terminal to go to the webapp
+	- assuming that  Git is installed, type: `git clone https://github.com/Cluster-Club/cluster_pval.git`
+2. While being in the main repository directory, (`cd cluster_pval`), type: `pip install -r requirements.txt`
+   or, if using conda, create a new environment for running the app by typing: 
+   `conda create -n cluster_pval python=3.9` and then `pip install -r requirements.txt`
+3. Open the web app by typing in your terminal: python app.py
+4. Use the link that is showed in the Terminal to go to the webapp
 
 Or open directly from link in README
 
 ![image](https://user-images.githubusercontent.com/91644573/146062855-d2d5733e-139e-42b5-afd2-1c87d1b6e513.png)
 
-4. Drag or upload the dataset (in CSV format) in the web app
-5. You'll see a preview of your data, and you will be requested to submit the following data:
+5. Drag or upload the dataset (in CSV format) in the web app
+6. You'll see a preview of your data, and you will be requested to submit the following data:
 	- Organization of samples (rows vs. columns)
 	- Data information; the first and last columns containing data to be clustered. 
 		Please note that this is in zero-index format, 
@@ -132,13 +138,13 @@ Or open directly from link in README
 	- Clustering method; choose to apply hierarchical of K-means clustering
 	- linkage method
 
-![image](https://user-images.githubusercontent.com/91644573/146061804-6020e1d6-a292-4e6d-8e8f-bd727e17947c.png)
+![image](https://user-images.githubusercontent.com/91644573/146283192-420bb6d5-217b-4fad-9d8a-2dfbf65bbc37.png)
 
-6. Click on "Press to submit clustering"
-7. You will a cluster visualization with the option to download the figure
+7. Click on "Press to submit clustering"
+8. You will a cluster visualization with the option to download the figure
  ![image](https://user-images.githubusercontent.com/91644573/146061937-7cb3c3ac-0a5a-4951-87e5-c2d3915c5338.png)
 
-8. You will be requested to submit the following information for the calculation of the p-value:
+9. You will be requested to submit the following information for the calculation of the p-value:
 	- A threshold for significance
 	- An input number of draws to be used in calculating adjusted p-value
 ![image](https://user-images.githubusercontent.com/91644573/146062313-6404e2e4-45ff-4f2d-93bf-dda89aadb8a4.png)
@@ -147,7 +153,7 @@ Or open directly from link in README
 11. You will see the following results:
 	- A preview of the wald p-value file
 	- A preview of the adjusted p-value file 
-![image](https://user-images.githubusercontent.com/91644573/146062599-1136306c-1bbd-4ca8-8bf9-ad2a2641235d.png)
+![image](https://user-images.githubusercontent.com/91644573/146283251-3c89e0fc-ea3f-4538-be92-aa31c739e8ac.png)
 
 	
 ## Contributing

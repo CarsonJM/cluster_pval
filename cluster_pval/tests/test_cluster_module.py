@@ -21,10 +21,10 @@ class ClusterModuleTest(unittest.TestCase):
         dataset=pd.DataFrame(data)
         nr_of_clusters = 3
         clustering(dataset, nr_of_clusters, "hierarchical")
-        return
-    
+
+
     @classmethod
-    def test_smoke_Kmeans(cls):
+    def test_smoke_kmeans(cls):
         """
         tests if function gives a result for Kmeans clustering
         """
@@ -32,7 +32,6 @@ class ClusterModuleTest(unittest.TestCase):
         dataset=pd.DataFrame(data)
         nr_of_clusters = 3
         clustering(dataset, nr_of_clusters, "KMeans")
-        return
 
 
     def test_result_is_dataframe(self):
@@ -54,7 +53,6 @@ class ClusterModuleTest(unittest.TestCase):
         nr_of_clusters = 3
         with self.assertRaises(ValueError):
             clustering(dataset, nr_of_clusters, "hierarchical")
-        return
 
 
     def test_error_label(self):
@@ -66,4 +64,3 @@ class ClusterModuleTest(unittest.TestCase):
         nr_of_clusters = 1.2
         with self.assertRaises(ValueError):
             clustering(dataset, nr_of_clusters, "hierarchical")
-        return
