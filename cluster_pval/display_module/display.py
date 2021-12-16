@@ -1,6 +1,7 @@
 """
-This is a module containing a function for plotting clustered data onto a two-dimensional scatter plot using
-principal component analysis and a function for calculating percent explained variance of each of the first two
+This is a module containing a function for plotting clustered data onto
+a two-dimensional scatter plot using principal component analysis and a
+function for calculating percent explained variance of each of the first two
 principal components.
 """
 import pandas as pd
@@ -14,7 +15,8 @@ def cluster_plot(clustered_df):
 
     Parameters:
     :param clustered_df: pandas dataframe of clustered data
-    :return fig: two-dimensional scatter plot of dimensionally reduced data color-coded by cluster
+    :return fig: two-dimensional scatter plot of dimensionally
+                 reduced data color-coded by cluster
     """
     # check for correct datatype
     check_value_type = isinstance(clustered_df, pd.DataFrame)
@@ -42,11 +44,13 @@ def cluster_plot(clustered_df):
 
 def pca_var_per(clustered_df):
     """
-    This is a function to calculate percent explained variance of the first two principal components.
+    This is a function to calculate percent explained variance of the first two
+    principal components.
 
     Parameters:
     :param clustered_df: pandas dataframe of clustered data
-    :return var_per: pandas dataframe of percent variance explained by each of the first two principal components
+    :return var_per: pandas dataframe of percent variance
+                     explained by each of the first two principal components
     """
     # check for correct datatype
     check_value_type = isinstance(clustered_df, pd.DataFrame)
