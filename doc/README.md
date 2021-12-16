@@ -8,3 +8,6 @@ workflow of p_val cluster app.
 
 **images_for_README** - Directory containing screen shot images used in "Usage" 
 section of main software README and team logo.
+
+**final_presentation.pdf** - Slides presented as final presentation for CSE
+583 Fall 2021
